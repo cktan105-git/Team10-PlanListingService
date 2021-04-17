@@ -1,0 +1,45 @@
+version: 0.2
+
+env:
+  variables:
+    DOTNET_ROOT: /root/.dotnet
+  #Retrieve access key from Scecret Manager
+  secrets-manager:
+    AWS_ACCESS_KEY_ID_PARAM: plantlisting:AWS_ACCESS_KEY_ID
+    AWS_SECRET_ACCESS_KEY_PARAM: plantlisting:AWS_SECRET_ACCESS_KEY
+phases:
+  install:
+    runtime-versions:
+      dotnet: 3.1
+  pre_build:
+    commands:
+      - echo Restore started on `date`
+      - export PATH="$PATH:/root/.dotnet/tools"
+      - pip install --upgrade awscli
+      - echo ${AWS_REGION}
+      - echo ${Profile}
+      - echo ${CONFIGURATION}
+      - echo ${S3_BUCKET}
+      - echo ${S3_PREFIX}
+      - uuid=$(uuidgen -t)
+      - echo $uuid
+      - aws configure set region ${AWS_REGION}
+      - aws configure set profile ${Profile}
+      - aws configure set aws_access_key_id ${AWS_ACCESS_KEY_ID_PARAM}
+      - aws configure set aws_secret_access_key ${AWS_SECRET_ACCESS_KEY_PARAM}
+      - echo $(ls)
+      - dotnet clean 
+      - dotnet restore
+      - dotnet test
+      - cd PlantListing
+  build:
+    commands:
+      - dotnet tool install -g Amazon.Lambda.Tools
+      - dotnet tool update -g Amazon.Lambda.Tools
+      - dotnet-lambda package-ci --framework netcoreapp3.1 --region ${AWS_REGION} --configuration ${CONFIGURATION} --template ./serverless.template --s3-bucket ${S3_BUCKET}/ --s3-prefix ${S3_PREFIX} --output-template ./plantlisting-stack-serverless-output-${uuid}.template
+  post_build:
+    commands:
+      - aws s3 mv plantlisting-stack-serverless-output-${uuid}.template s3://${S3_BUCKET}/${S3_PREFIX}/
+      - aws cloudformation create-change-set --stack-name ${STACK_NAME} --template-url $(aws s3 presign s3://${S3_BUCKET}/${S3_PREFIX}/plantlisting-stack-serverless-output-${uuid}.template) --change-set-name plantlisting-stack-serverless-${uuid} --capabilities CAPABILITY_IAM
+      - aws cloudformation wait change-set-create-complete --stack-name ${STACK_NAME} --change-set-name plantlisting-stack-serverless-${uuid}
+      - aws cloudformation execute-change-set --stack-name ${STACK_NAME} --change-set-name plantlisting-stack-serverless-${uuid}
