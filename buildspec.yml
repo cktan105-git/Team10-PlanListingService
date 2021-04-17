@@ -36,7 +36,7 @@ phases:
     commands:
       - dotnet tool install -g Amazon.Lambda.Tools
       - dotnet tool update -g Amazon.Lambda.Tools
-      - dotnet-lambda package-ci --framework netcoreapp3.1 --region ${AWS_REGION} --configuration ${CONFIGURATION} --template ./serverless.template --s3-bucket ${S3_BUCKET}/ --s3-prefix ${S3_PREFIX} --output-template ./plantlisting-stack-serverless-output-${uuid}.template
+      - dotnet-lambda package-ci --framework netcoreapp3.1 --region ${AWS_REGION} --configuration ${CONFIGURATION} --template ./serverless.template --s3-bucket "${S3_BUCKET}/" --s3-prefix ${S3_PREFIX} --output-template ./plantlisting-stack-serverless-output-${uuid}.template
   post_build:
     commands:
       - aws s3 mv plantlisting-stack-serverless-output-${uuid}.template s3://${S3_BUCKET}/${S3_PREFIX}/
