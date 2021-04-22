@@ -176,7 +176,7 @@ namespace PlantListing.Controllers
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
-        public async Task<IActionResult> UpdatePlantDetails([FromBody] CreateUpdatePlantDetailsViewModel plantDetailsViewModel)
+        public async Task<IActionResult> UpdatePlantDetails([FromForm] CreateUpdatePlantDetailsViewModel plantDetailsViewModel)
         {
             var plantDetails = await _context.PlantDetails.FindAsync(plantDetailsViewModel.PlantDetailsId);
             if (plantDetails == null)
@@ -229,7 +229,7 @@ namespace PlantListing.Controllers
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.Created)]
         [ProducesResponseType(typeof(PlantDetailsViewModel), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<PlantDetailsViewModel>> CreatePlantDetails([FromBody] CreateUpdatePlantDetailsViewModel plantDetailsViewModel)
+        public async Task<ActionResult<PlantDetailsViewModel>> CreatePlantDetails([FromForm] CreateUpdatePlantDetailsViewModel plantDetailsViewModel)
         {
             if (!IsProducer())
             {

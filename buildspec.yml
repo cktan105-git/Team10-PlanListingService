@@ -3,7 +3,7 @@ version: 0.2
 env:
   variables:
     DOTNET_ROOT: /root/.dotnet
-  #Retrieve access key from Scecret Manager
+  #Retrieve access key from Secret Manager
   secrets-manager:
     AWS_ACCESS_KEY_ID_PARAM: plantlisting:AWS_ACCESS_KEY_ID
     AWS_SECRET_ACCESS_KEY_PARAM: plantlisting:AWS_SECRET_ACCESS_KEY
