@@ -331,12 +331,15 @@ namespace PlantListing.Controllers
 
         private void GetChangesFromViewModel(PlantDetails plantDetails, CreateUpdatePlantDetailsViewModel viewModel)
         {
+            var category = _context.PlantCategories.Where(c => EF.Functions.Like(c.Category, viewModel.Category ?? string.Empty)).FirstOrDefault();
+            var weightUnit = _context.WeightUnits.Where(c => EF.Functions.Like(c.Unit, viewModel.Unit ?? string.Empty)).FirstOrDefault();
+
             plantDetails.Name = viewModel.Name;
             plantDetails.Description = viewModel.Description;
-            plantDetails.CategoryId = _context.PlantCategories.SingleOrDefault(c => string.Equals(c.Category, viewModel.Category ?? string.Empty, StringComparison.OrdinalIgnoreCase))?.Id ?? -1;
+            plantDetails.CategoryId = category?.Id ?? -1;
             plantDetails.Price = viewModel.Price;
             plantDetails.Weight = viewModel.Weight;
-            plantDetails.UnitId = _context.WeightUnits.SingleOrDefault(c => string.Equals(c.Unit, viewModel.Unit ?? string.Empty, StringComparison.OrdinalIgnoreCase))?.Id ?? -1;
+            plantDetails.UnitId = weightUnit?.Id ?? -1;
             plantDetails.Stock = viewModel.Stock;
         }
     }

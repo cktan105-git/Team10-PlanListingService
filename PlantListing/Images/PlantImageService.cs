@@ -108,7 +108,7 @@ namespace PlantListing.Images
                         Key = fileName,
                         InputStream = stream,
                         ContentType = contentType,
-                        CannedACL = S3CannedACL.PublicRead // enable public read access
+                        //CannedACL = S3CannedACL.PublicRead // enable public read access
                     };
 
                     response = await _s3Client.PutObjectAsync(request);

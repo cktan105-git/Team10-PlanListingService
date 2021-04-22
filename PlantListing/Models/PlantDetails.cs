@@ -15,15 +15,11 @@ namespace PlantListing.Models
 
         public int CategoryId { get; set; }
 
-        public PlantCategory PlantCategory { get; set; }
-
         public decimal Price { get; set; }
 
         public decimal Weight { get; set; }
 
         public int UnitId { get; set; }
-
-        public WeightUnit WeightUnit { get; set; }
 
         public int Stock { get; set; }
 

@@ -28,10 +28,10 @@ namespace PlantListing.Infrastructure.EntityConfigurations
                 .IsRequired(false)
                 .HasMaxLength(500);
 
-            builder.HasOne(ci => ci.PlantCategory)
-                  .WithMany()
-                  .HasForeignKey(ci => ci.CategoryId)
-                  .OnDelete(DeleteBehavior.Restrict);
+            //builder.HasOne(ci => ci.PlantCategory)
+            //      .WithMany()
+            //      .HasForeignKey(ci => ci.CategoryId)
+            //      .OnDelete(DeleteBehavior.Restrict);
 
             builder.Property(ci => ci.CategoryId)
                 .IsRequired(true);
@@ -44,10 +44,10 @@ namespace PlantListing.Infrastructure.EntityConfigurations
                 .IsRequired(true)
                 .HasPrecision(18, 2);
 
-            builder.HasOne(ci => ci.WeightUnit)
-                .WithMany()
-                .HasForeignKey(ci => ci.UnitId)
-                .OnDelete(DeleteBehavior.Restrict);
+            //builder.HasOne(ci => ci.WeightUnit)
+            //    .WithMany()
+            //    .HasForeignKey(ci => ci.UnitId)
+            //    .OnDelete(DeleteBehavior.Restrict);
 
             builder.Property(ci => ci.UnitId)
                 .IsRequired(true);

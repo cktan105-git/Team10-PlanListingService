@@ -2,15 +2,17 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PlantListing.Infrastructure;
 
-namespace PlantListing.Infrastructure.Migrations
+namespace PlantListing.Migrations
 {
     [DbContext(typeof(PlantListingContext))]
-    partial class PlantListingContextModelSnapshot : ModelSnapshot
+    [Migration("20210422151950_UpdatePlantDetailsModel")]
+    partial class UpdatePlantDetailsModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

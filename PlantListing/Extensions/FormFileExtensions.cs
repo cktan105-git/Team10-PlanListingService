@@ -13,15 +13,15 @@ namespace PlantListing.Extensions
     {
         public static bool IsValidImage(this IFormFile file, int minBytes = 512, int maxBytes = 3145728)
         {
-            //-------------------------------------------
-            //  Check the image mime types
-            //-------------------------------------------
-            if (file.ContentType.ToLower() != "image/jpg" 
-                && file.ContentType.ToLower() != "image/jpeg"
-                && file.ContentType.ToLower() != "image/png")
-            {
-                return false;
-            }
+            ////-------------------------------------------
+            ////  Check the image mime types
+            ////-------------------------------------------
+            //if (file.ContentType.ToLower() != "image/jpg" 
+            //    && file.ContentType.ToLower() != "image/jpeg"
+            //    && file.ContentType.ToLower() != "image/png")
+            //{
+            //    return false;
+            //}
 
             //-------------------------------------------
             //  Check the image extension
