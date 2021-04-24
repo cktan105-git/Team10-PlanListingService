@@ -16,6 +16,7 @@ using Microsoft.Extensions.Logging;
 using PlantListing.Extensions;
 using PlantListing.Images;
 using PlantListing.Integrations;
+using Amazon.XRay.Recorder.Handlers.AwsSdk;
 
 namespace PlantListing
 {
