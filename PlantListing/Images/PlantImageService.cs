@@ -45,7 +45,11 @@ namespace PlantListing.Images
 
         public async Task<PlantImageViewModel> ReplaceImageAsync(string oldFileName, IFormFile file)
         {
-            await DeleteImageAsync(oldFileName);
+            if(!string.IsNullOrEmpty(oldFileName))
+            {
+                DeleteImageAsync(oldFileName); // no need await for this
+            }
+
             return await UploadImageAsync(file);
         }
 
@@ -76,21 +80,26 @@ namespace PlantListing.Images
                     };
 
                     _logger.LogInformation(JsonConvert.SerializeObject(json)); ;
-                    throw new PlantListingDomainException(message);
+                    //throw new PlantListingDomainException(message); // dont throw exception if fail to delete image from S3
+
+                    return false;
                 }
             }
             catch (AmazonS3Exception amazonS3Exception)
             {
                 _logger.LogError(amazonS3Exception.ToString());
 
-                if (amazonS3Exception.ErrorCode != null && (amazonS3Exception.ErrorCode.Equals("InvalidAccessKeyId") || amazonS3Exception.ErrorCode.Equals("InvalidSecurity")))
-                {
-                    throw new Exception("Check the provided AWS Credentials.");
-                }
-                else
-                {
-                    throw new Exception("Error occurred: " + amazonS3Exception.Message);
-                }
+                // dont throw exception if fail to delete image from S3
+                //if (amazonS3Exception.ErrorCode != null && (amazonS3Exception.ErrorCode.Equals("InvalidAccessKeyId") || amazonS3Exception.ErrorCode.Equals("InvalidSecurity")))
+                //{
+                //    throw new Exception("Check the provided AWS Credentials.");
+                //}
+                //else
+                //{
+                //    throw new Exception("Error occurred: " + amazonS3Exception.Message);
+                //}
+
+                return false;
             }
         }
 

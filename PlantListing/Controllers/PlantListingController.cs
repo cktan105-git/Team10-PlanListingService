@@ -278,7 +278,7 @@ namespace PlantListing.Controllers
 
             if(!string.IsNullOrEmpty(plantDetails.ImageName))
             {
-               await _plantImageService.DeleteImageAsync(plantDetails.ImageName);
+               _plantImageService.DeleteImageAsync(plantDetails.ImageName); // no need await for this
             }
 
             _context.PlantDetails.Remove(plantDetails);
