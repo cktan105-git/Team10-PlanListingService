@@ -3,6 +3,12 @@ version: 0.2
 env:
   variables:
     DOTNET_ROOT: /root/.dotnet
+    AWS_REGION: ap-southeast-1
+    S3_BUCKET: plant-listing-service
+    S3_PREFIX: pipeline
+    CONFIGURATION: Release
+    Profile: default
+    STACK_NAME: plant-listing-stack
   #Retrieve access key from Secret Manager
   secrets-manager:
     AWS_ACCESS_KEY_ID_PARAM: plantlisting:AWS_ACCESS_KEY_ID

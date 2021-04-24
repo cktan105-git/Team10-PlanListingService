@@ -20,6 +20,7 @@ using Microsoft.Extensions.Configuration;
 using PlantListing.Extensions;
 using PlantListing.Images;
 using PlantListing.Infrastructure.Exceptions;
+using PlantListing.Integrations;
 
 namespace PlantListing.Controllers
 {
@@ -30,25 +31,13 @@ namespace PlantListing.Controllers
     {
         private readonly PlantListingContext _context;
         private readonly IPlantImageService _plantImageService;
-        private readonly long? _producerId;
+        private readonly IProducerService _producerService;
 
-
-        //public PlantListingController(PlantListingContext context)
-        //{
-        //    _context = context ?? throw new ArgumentNullException(nameof(context));
-        //}
-
-        //public PlantListingController(PlantListingContext context, long? producerId = null)
-        //{
-        //    _context = context ?? throw new ArgumentNullException(nameof(context));
-        //    _producerId = producerId;
-        //}
-
-        public PlantListingController(PlantListingContext context, IPlantImageService plantImageService, long? producerId = null)
+        public PlantListingController(PlantListingContext context, IPlantImageService plantImageService, IProducerService producerService)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _plantImageService = plantImageService ?? throw new ArgumentNullException(nameof(plantImageService));
-            _producerId = producerId;
+            _producerService = producerService ?? throw new ArgumentNullException(nameof(producerService));
         }
 
         // GET: api/v1/PlantListing/[?pageSize=5&pageIndex=10]
@@ -184,7 +173,7 @@ namespace PlantListing.Controllers
                 return NotFound(new { Message = $"Plant details with id {plantDetailsViewModel.PlantDetailsId} not found." });
             }
 
-            if (!IsProducer() || plantDetails.ProducerId != GetProducerId())
+            if(!_producerService.TryGetProducerId(GetUserId(), out long producerId) || plantDetails.ProducerId != producerId)
             {
                 return Unauthorized();
             }
@@ -231,14 +220,14 @@ namespace PlantListing.Controllers
         [ProducesResponseType(typeof(PlantDetailsViewModel), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<PlantDetailsViewModel>> CreatePlantDetails([FromForm] CreateUpdatePlantDetailsViewModel plantDetailsViewModel)
         {
-            if (!IsProducer())
+            if (!_producerService.TryGetProducerId(GetUserId(), out long producerId))
             {
                 return Unauthorized();
             }
 
             var plantDetails = new PlantDetails();
             GetChangesFromViewModel(plantDetails, plantDetailsViewModel);
-            plantDetails.ProducerId = GetProducerId();
+            plantDetails.ProducerId = producerId;
 
             if (!plantDetails.IsValid() || (plantDetailsViewModel.ImageFile != null && !plantDetailsViewModel.ImageFile.IsValidImage()))
             {
@@ -271,12 +260,12 @@ namespace PlantListing.Controllers
                 return NotFound(new { Message = $"Plant details with id {plantDetailsId} not found." });
             }
 
-            if (!IsProducer() || plantDetails.ProducerId != GetProducerId())
+            if (!_producerService.TryGetProducerId(GetUserId(), out long producerId) || plantDetails.ProducerId != producerId)
             {
                 return Unauthorized();
             }
 
-            if(!string.IsNullOrEmpty(plantDetails.ImageName))
+            if (!string.IsNullOrEmpty(plantDetails.ImageName))
             {
                _plantImageService.DeleteImageAsync(plantDetails.ImageName); // no need await for this
             }
@@ -287,23 +276,15 @@ namespace PlantListing.Controllers
             return NoContent();
         }
 
+        private string GetUserId()
+        {
+            // TODO: Get this information from sign in user
+            return "User1";
+        }
+
         private bool PlantDetailsExists(long id)
         {
             return _context.PlantDetails.Any(e => e.PlantDetailsId == id);
-        }
-
-        private bool IsProducer()
-        {
-            // TODO
-            //throw new NotImplementedException();
-            return _producerId.HasValue && _producerId.Value > 0;
-        }
-
-        private long GetProducerId()
-        {
-            // TODO
-            //throw new NotImplementedException();
-            return _producerId ?? -1;
         }
 
         private PlantDetailsViewModel MapToViewModel(PlantDetails plantDetails)

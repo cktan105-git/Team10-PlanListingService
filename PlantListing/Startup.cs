@@ -15,6 +15,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using PlantListing.Extensions;
 using PlantListing.Images;
+using PlantListing.Integrations;
 
 namespace PlantListing
 {
@@ -37,8 +38,12 @@ namespace PlantListing
                 .AddDefaultAWSOptions(Configuration.GetAWSOptions()) // Adds AWS Options
                 .AddCognitoIdentity() // Adds Amazon Cognito as Identity Provider
                 .AddAWSService<IAmazonS3>() // Adds Amazon S3
+                .Configure<AWSSettings>(Configuration.GetSection(AWSSettings.AWS)) // Read option from "AWS" environment variable
                 .AddTransient<IPlantImageService, PlantImageService>()
-                .Configure<AWSSettings>(Configuration.GetSection(AWSSettings.AWS)); // Read option from "AWS" environment variable
+                .Configure<ProducerServiceSettings>(Configuration.GetSection(ProducerServiceSettings.ProducerService)) // Read option from "AWS" environment variable
+                .AddTransient<IProducerService, ProducerService>();
+                
+            services.AddHttpClient<ProducerServiceClient>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline
