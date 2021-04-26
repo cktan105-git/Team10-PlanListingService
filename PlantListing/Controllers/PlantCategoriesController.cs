@@ -8,9 +8,11 @@ using System.Net;
 using System.Threading.Tasks;
 using PlantListing.Infrastructure;
 using PlantListing.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace PlantListing.Controllers
 {
+    //[Authorize]
     [Route("api/v1/[controller]")]
     [ApiController]
     public class PlantCategoriesController : ControllerBase

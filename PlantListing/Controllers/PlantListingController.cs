@@ -58,6 +58,39 @@ namespace PlantListing.Controllers
             return new PaginatedItemsViewModel<PlantDetailsViewModel>(pageIndex, pageSize, totalItems, MapToViewModels(itemsOnPage));
         }
 
+        // GET: api/v1/PlantListing/{plantDetailsIds}
+        [HttpGet]
+        [Route("{plantDetailsIds}")]
+        [ProducesResponseType(typeof(PaginatedItemsViewModel<PlantDetailsViewModel>), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<PaginatedItemsViewModel<PlantDetailsViewModel>>> GetPlantListingByPlantDetailsIds(string plantDetailsIds, [FromQuery] int pageSize = 5, [FromQuery] int pageIndex = 0)
+        {
+            if (string.IsNullOrWhiteSpace(plantDetailsIds))
+            {
+                return BadRequest("Plant Details Ids must not be empty.");
+            }
+
+            var tupleIds = plantDetailsIds.Split('|').Select(id => (OK: long.TryParse(id, out long x), Value: x));
+            if (!tupleIds.All(id => id.OK))
+            {
+                return BadRequest("Plant Details Ids must be pipe-separated list of numbers");
+            }
+
+            var idsToSelect = tupleIds.Select(id => id.Value);
+
+            var root = (IQueryable<PlantDetails>)_context.PlantDetails;
+            root = root.Where(d => idsToSelect.Contains(d.PlantDetailsId));
+
+            var totalItems = await root
+                .LongCountAsync();
+
+            var itemsOnPage = await root
+                .Skip(pageSize * pageIndex)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return new PaginatedItemsViewModel<PlantDetailsViewModel>(pageIndex, pageSize, totalItems, MapToViewModels(itemsOnPage));
+        }
+
         // GET: api/v1/PlantListing/{producerId}
         [HttpGet]
         [Route("{producerId:long?}")]
@@ -100,7 +133,7 @@ namespace PlantListing.Controllers
 
             return new PaginatedItemsViewModel<PlantDetailsViewModel>(pageIndex, pageSize, totalItems, MapToViewModels(itemsOnPage));
         }
-
+       
         // GET: api/v1/PlantListing/Search/keyword[?categoryId=1&pageSize=5&pageIndex=10]
         [HttpGet]
         [Route("Search/{keyword:minlength(1)}")]

@@ -95,6 +95,49 @@ namespace PlantListing.Test
         }
         #endregion
 
+        #region GetPlantListingByPlantDetailsIds
+        [Theory]
+        [InlineData(null, 5, 0, 0)]
+        [InlineData("", 5, 0, 0)]
+        [InlineData("          ", 5, 0, 0)]
+        [InlineData("1,2,3", 5, 0, 0)]
+        [InlineData("1a|2b|3c", 5, 0, 0)]
+        [InlineData("1|2|3|", 5, 0, 3)]
+        public async Task Get_plant_listing_by_plantDetailsIds_bad_request_response(string plantDetailsIds, int pageSize, int pageIndex, int expectedCount)
+        {
+            //Arrange
+            var plantDetailsContext = new PlantListingContext(_dbOptions);
+
+            //Act
+            var plantDetailsController = new PlantListingController(plantDetailsContext, _mockPlantImageService.Object, SetupMockPlantImageService().Object);
+            var actionResult = await plantDetailsController.GetPlantListingByPlantDetailsIds(plantDetailsIds, pageSize, pageIndex);
+
+            //Assert
+            Assert.IsType<ActionResult<PaginatedItemsViewModel<PlantDetailsViewModel>>>(actionResult);
+            Assert.IsType<BadRequestObjectResult>(actionResult.Result);
+        }
+
+        [Theory]
+        [InlineData("1|2|3", 5, 0, 3)]
+        [InlineData("1|1|1", 5, 0, 1)]
+        [InlineData("1 | 2 | 3", 5, 0, 3)]
+        [InlineData("1|2|3", 2, 0, 2)] // test pagination
+        [InlineData("1|2|3", 2, 1, 1)] // test pagination
+        public async Task Get_plant_listing_by_plantDetailsIds_success(string plantDetailsIds, int pageSize, int pageIndex, int expectedCount)
+        {
+            //Arrange
+            var plantDetailsContext = new PlantListingContext(_dbOptions);
+
+            //Act
+            var plantDetailsController = new PlantListingController(plantDetailsContext, _mockPlantImageService.Object, SetupMockPlantImageService().Object);
+            var actionResult = await plantDetailsController.GetPlantListingByPlantDetailsIds(plantDetailsIds, pageSize, pageIndex);
+
+            //Assert
+            Assert.IsType<ActionResult<PaginatedItemsViewModel<PlantDetailsViewModel>>>(actionResult);
+            Assert.Equal(expectedCount, actionResult.Value.Data.Count());
+        }
+        #endregion
+
         #region GetPlantListingByProducerId
         [Theory]
         [InlineData(1, 5, 0, 2)]
