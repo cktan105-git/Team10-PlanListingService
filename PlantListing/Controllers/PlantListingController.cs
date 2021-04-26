@@ -51,7 +51,8 @@ namespace PlantListing.Controllers
                 .Take(pageSize)
                 .ToListAsync();
 
-            _logger.LogDebug(JsonConvert.SerializeObject(this.User.Identity));
+            _logger.LogDebug("User Information:");
+            _logger.LogDebug(JsonConvert.SerializeObject(this.User));
 
             return new PaginatedItemsViewModel<PlantDetailsViewModel>(pageIndex, pageSize, totalItems, MapToViewModels(itemsOnPage));
         }
