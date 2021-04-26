@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Identity;
 using Amazon.Extensions.CognitoAuthentication;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Amazon.Lambda.Core;
 
 namespace PlantListing.Controllers
 {
@@ -26,14 +27,12 @@ namespace PlantListing.Controllers
         private readonly PlantListingContext _context;
         private readonly IPlantImageService _plantImageService;
         private readonly IProducerService _producerService;
-        private readonly ILogger _logger;
 
-        public PlantListingController(PlantListingContext context, IPlantImageService plantImageService, IProducerService producerService, ILogger<PlantListingController> logger)
+        public PlantListingController(PlantListingContext context, IPlantImageService plantImageService, IProducerService producerService)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _plantImageService = plantImageService ?? throw new ArgumentNullException(nameof(plantImageService));
             _producerService = producerService ?? throw new ArgumentNullException(nameof(producerService));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         // GET: api/v1/PlantListing/[?pageSize=5&pageIndex=10]
@@ -51,8 +50,10 @@ namespace PlantListing.Controllers
                 .Take(pageSize)
                 .ToListAsync();
 
-            _logger.LogDebug("User Information:");
-            _logger.LogDebug(JsonConvert.SerializeObject(this.User));
+            LambdaLogger.Log("User Information:");
+            LambdaLogger.Log(JsonConvert.SerializeObject(this.User?.Claims));
+            LambdaLogger.Log(JsonConvert.SerializeObject(this.User?.Identities));
+            LambdaLogger.Log(JsonConvert.SerializeObject(this.User?.Identity));
 
             return new PaginatedItemsViewModel<PlantDetailsViewModel>(pageIndex, pageSize, totalItems, MapToViewModels(itemsOnPage));
         }
