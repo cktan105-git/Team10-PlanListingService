@@ -71,6 +71,11 @@ namespace PlantListing
                     await context.Response.WriteAsync("Welcome to running ASP.NET Core on AWS Lambda");
                 });
             });
+
+            //var loggerOptions = new LambdaLoggerOptions(Configuration);
+
+            //// Configure Lambda logging
+            //loggerFactory.AddLambdaLogger(loggerOptions);
         }
     }
 }

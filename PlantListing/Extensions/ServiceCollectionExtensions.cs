@@ -11,6 +11,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using PlantListing.Infrastructure;
 using PlantListing.Infrastructure.Filters;
+using Microsoft.Extensions.Logging;
 
 namespace PlantListing.Extensions
 {
@@ -60,6 +61,6 @@ namespace PlantListing.Extensions
                 });
 
             return services;
-        }
+        }      
     }
 }

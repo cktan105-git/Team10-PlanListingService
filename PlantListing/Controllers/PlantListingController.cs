@@ -1,26 +1,20 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using PlantListing.Extensions;
+using PlantListing.Images;
+using PlantListing.Infrastructure;
+using PlantListing.Integrations;
+using PlantListing.Models;
+using PlantListing.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using PlantListing.Infrastructure;
-using PlantListing.Models;
-using PlantListing.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Amazon.Extensions.CognitoAuthentication;
-using Amazon.AspNetCore.Identity.Cognito;
-using Amazon.S3;
-using Amazon.S3.Model;
-using System.IO;
-using Microsoft.Extensions.Configuration;
-using PlantListing.Extensions;
-using PlantListing.Images;
-using PlantListing.Infrastructure.Exceptions;
-using PlantListing.Integrations;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace PlantListing.Controllers
 {
@@ -32,12 +26,14 @@ namespace PlantListing.Controllers
         private readonly PlantListingContext _context;
         private readonly IPlantImageService _plantImageService;
         private readonly IProducerService _producerService;
+        private readonly ILogger _logger;
 
-        public PlantListingController(PlantListingContext context, IPlantImageService plantImageService, IProducerService producerService)
+        public PlantListingController(PlantListingContext context, IPlantImageService plantImageService, IProducerService producerService, ILogger<PlantListingController> logger)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _plantImageService = plantImageService ?? throw new ArgumentNullException(nameof(plantImageService));
             _producerService = producerService ?? throw new ArgumentNullException(nameof(producerService));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         // GET: api/v1/PlantListing/[?pageSize=5&pageIndex=10]
@@ -54,6 +50,8 @@ namespace PlantListing.Controllers
                 .Skip(pageSize * pageIndex)
                 .Take(pageSize)
                 .ToListAsync();
+
+            _logger.LogDebug(JsonConvert.SerializeObject(this.User.Identity));
 
             return new PaginatedItemsViewModel<PlantDetailsViewModel>(pageIndex, pageSize, totalItems, MapToViewModels(itemsOnPage));
         }
