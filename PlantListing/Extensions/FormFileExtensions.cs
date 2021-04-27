@@ -68,6 +68,8 @@ namespace PlantListing.Extensions
                     LambdaLogger.Log("Regex.IsMatch");
                     return false;
                 }
+
+                return true;
             }
             catch (Exception ex)
             {
@@ -75,33 +77,37 @@ namespace PlantListing.Extensions
                 LambdaLogger.Log(ex.ToString());
                 return false;
             }
+            finally
+            {
+                file.OpenReadStream().Position = 0;
+            }
 
             //-------------------------------------------
             //  Try to instantiate new image, if .NET will throw exception
             //  we can assume that it's not a valid image
             //-------------------------------------------
-            try
-            {
-                using (var imageReadStream = new MemoryStream())
-                {
-                    file.CopyTo(imageReadStream);
-                    using (var possibleImage = Image.FromStream(imageReadStream))
-                    {
-                    }
-
-                    return true;
-                }
-            }
-            catch (Exception ex)
-            {
-                LambdaLogger.Log("imageReadStream exception");
-                LambdaLogger.Log(ex.ToString());
-                return false;
-            }
-            finally
-            {
-                file.OpenReadStream().Position = 0;
-            }
+            //try
+            //{
+            //    using (var imageReadStream = new MemoryStream())
+            //    {
+            //        file.CopyTo(imageReadStream);
+            //        using (var possibleImage = Image.FromStream(imageReadStream))
+            //        {
+            //        }
+            //
+            //        return true;
+            //    }
+            //}
+            //catch (Exception ex)
+            //{
+            //    LambdaLogger.Log("imageReadStream exception");
+            //    LambdaLogger.Log(ex.ToString());
+            //    return false;
+            //}
+            //finally
+            //{
+            //    file.OpenReadStream().Position = 0;
+            //}
         }
     }
 }
