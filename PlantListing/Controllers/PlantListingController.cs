@@ -214,12 +214,16 @@ namespace PlantListing.Controllers
             GetChangesFromViewModel(plantDetails, plantDetailsViewModel);
             if (!plantDetails.IsValid())
             {
+                LambdaLogger.Log("Invalid plant details");
+                LambdaLogger.Log(JsonConvert.SerializeObject(plantDetailsViewModel));
                 return BadRequest();
             }
 
             if ((plantDetailsViewModel.ImageFile != null && !plantDetailsViewModel.ImageFile.IsValidImage()))
             {
-                return BadRequest("Invalid Image.");
+                LambdaLogger.Log("Invalid image");
+                LambdaLogger.Log(JsonConvert.SerializeObject(plantDetailsViewModel));
+                return BadRequest("Invalid image.");
             }
 
             try
@@ -264,12 +268,16 @@ namespace PlantListing.Controllers
 
             if (!plantDetails.IsValid())
             {
+                LambdaLogger.Log("Invalid plant details");
+                LambdaLogger.Log(JsonConvert.SerializeObject(plantDetailsViewModel));
                 return BadRequest();
             }
 
             if ((plantDetailsViewModel.ImageFile != null && !plantDetailsViewModel.ImageFile.IsValidImage()))
             {
-                return BadRequest("Invalid Image.");
+                LambdaLogger.Log("Invalid image");
+                LambdaLogger.Log(JsonConvert.SerializeObject(plantDetailsViewModel));
+                return BadRequest("Invalid image.");
             }
 
             if (plantDetailsViewModel.ImageFile != null)
