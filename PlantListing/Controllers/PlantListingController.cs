@@ -212,9 +212,14 @@ namespace PlantListing.Controllers
             }
 
             GetChangesFromViewModel(plantDetails, plantDetailsViewModel);
-            if (!plantDetails.IsValid() || (plantDetailsViewModel.ImageFile != null && !plantDetailsViewModel.ImageFile.IsValidImage()))
+            if (!plantDetails.IsValid())
             {
                 return BadRequest();
+            }
+
+            if ((plantDetailsViewModel.ImageFile != null && !plantDetailsViewModel.ImageFile.IsValidImage()))
+            {
+                return BadRequest("Invalid Image.");
             }
 
             try
@@ -257,9 +262,14 @@ namespace PlantListing.Controllers
             GetChangesFromViewModel(plantDetails, plantDetailsViewModel);
             plantDetails.UserId = plantDetailsViewModel.UserId;
 
-            if (!plantDetails.IsValid() || (plantDetailsViewModel.ImageFile != null && !plantDetailsViewModel.ImageFile.IsValidImage()))
+            if (!plantDetails.IsValid())
             {
                 return BadRequest();
+            }
+
+            if ((plantDetailsViewModel.ImageFile != null && !plantDetailsViewModel.ImageFile.IsValidImage()))
+            {
+                return BadRequest("Invalid Image.");
             }
 
             if (plantDetailsViewModel.ImageFile != null)
