@@ -18,6 +18,7 @@
           "AWSLambda_FullAccess",
           "AmazonSSMReadOnlyAccess",
           "AWSLambdaVPCAccessExecutionRole",
+          "AmazonS3FullAccess",
           {
                "Version": "2012-10-17",
                "Statement": [

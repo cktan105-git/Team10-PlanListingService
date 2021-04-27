@@ -77,10 +77,10 @@ namespace PlantListing.Extensions
                 LambdaLogger.Log(ex.ToString());
                 return false;
             }
-            finally
-            {
-                file.OpenReadStream().Position = 0;
-            }
+            //finally
+            //{
+            //    file.OpenReadStream().Position = 0;
+            //}
 
             //-------------------------------------------
             //  Try to instantiate new image, if .NET will throw exception

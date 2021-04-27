@@ -116,7 +116,7 @@ namespace PlantListing.Images
                         BucketName = _options.Value.ImageS3BucketName,
                         Key = fileName,
                         InputStream = stream,
-                        ContentType = contentType,
+                        //ContentType = contentType,
                         //CannedACL = S3CannedACL.PublicRead // enable public read access
                     };
 
