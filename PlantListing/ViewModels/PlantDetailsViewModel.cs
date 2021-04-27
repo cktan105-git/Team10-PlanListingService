@@ -17,6 +17,6 @@ namespace PlantListing.ViewModels
         public int Stock { get; set; }
         public string ImageName { get; set; }
         public string ImageUri { get; set; }
-        public long ProducerId { get; set; }
+        public string UserId { get; set; }
     }
 }

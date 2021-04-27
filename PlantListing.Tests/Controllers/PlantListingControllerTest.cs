@@ -65,14 +65,12 @@ namespace PlantListing.Test
             }
         }
 
-        private Mock<IProducerService> SetupMockPlantImageService(long? producerId = 1)
-        {
-            long mockProducerId = producerId ?? -1;
-            
-            var mockProducerService = new Mock<IProducerService>();
-            mockProducerService.Setup(c => c.TryGetProducerId(It.IsAny<string>(), out mockProducerId)).Returns(mockProducerId > 0);
+        private Mock<IUserService> SetupMockPlantImageService(string userId = "cktan")
+        {            
+            var mockUserService = new Mock<IUserService>();
+            mockUserService.Setup(c => c.GetUserId()).Returns(userId);
 
-            return mockProducerService;
+            return mockUserService;
         }
 
         #region GetPlantListing
@@ -141,21 +139,21 @@ namespace PlantListing.Test
 
         #region GetPlantListingByProducerId
         [Theory]
-        [InlineData(1, 5, 0, 2)]
-        [InlineData(2, 5, 0, 1)]
-        [InlineData(3, 5, 0, 1)]
-        [InlineData(4, 5, 0, 4)]
-        [InlineData(1, 1, 0, 1)] // test pagination
-        [InlineData(4, 2, 1, 2)] // test pagination
-        [InlineData(99, 5, 0, 0)]
-        public async Task Get_plant_listing_by_producerId_success(int producerId, int pageSize, int pageIndex, int expectedCount)
+        [InlineData("cktan", 5, 0, 2)]
+        [InlineData("mgkoh", 5, 0, 1)]
+        [InlineData("user0001", 5, 0, 1)]
+        [InlineData("wpkeoh", 5, 0, 4)]
+        [InlineData("cktan", 1, 0, 1)] // test pagination
+        [InlineData("wpkeoh", 2, 1, 2)] // test pagination
+        [InlineData("unknown", 5, 0, 0)]
+        public async Task Get_plant_listing_by_producerId_success(string userId, int pageSize, int pageIndex, int expectedCount)
         {
             //Arrange
             var plantDetailsContext = new PlantListingContext(_dbOptions);
 
             //Act
-            var plantDetailsController = new PlantListingController(plantDetailsContext, _mockPlantImageService.Object, SetupMockPlantImageService().Object);
-            var actionResult = await plantDetailsController.GetPlantListingByProducerId(producerId, pageSize, pageIndex);
+            var plantDetailsController = new PlantListingController(plantDetailsContext, _mockPlantImageService.Object, SetupMockPlantImageService(userId).Object);
+            var actionResult = await plantDetailsController.GetMyPlantListing(pageSize, pageIndex);
 
             //Assert
             Assert.IsType<ActionResult<PaginatedItemsViewModel<PlantDetailsViewModel>>>(actionResult);
@@ -280,7 +278,7 @@ namespace PlantListing.Test
             var expectedWeight = 500.0m;
             var expectedUnit = "g";
             var expectedStock = 50;
-            var expectedProducerId = 2;
+            var expectedUserId = "mgkoh";
 
             //Act
             var plantDetailsController = new PlantListingController(plantDetailsContext, _mockPlantImageService.Object, SetupMockPlantImageService().Object);
@@ -296,7 +294,7 @@ namespace PlantListing.Test
             Assert.Equal(expectedWeight, actionResult.Value.Weight);
             Assert.Equal(expectedUnit, actionResult.Value.Unit);
             Assert.Equal(expectedStock, actionResult.Value.Stock);
-            Assert.Equal(expectedProducerId, actionResult.Value.ProducerId);
+            Assert.Equal(expectedUserId, actionResult.Value.UserId);
         }
         #endregion
 
@@ -307,7 +305,7 @@ namespace PlantListing.Test
             //Arrange
             var plantDetailsContext = new PlantListingContext(_dbOptions);
 
-            var producerId = 1;
+            var userId = "cktan";
             var NotFoundUpdatePlantDetailsViewModel = new CreateUpdatePlantDetailsViewModel()
             {
                 PlantDetailsId = 99,
@@ -321,7 +319,7 @@ namespace PlantListing.Test
             };
 
             //Act
-            var plantDetailsController = new PlantListingController(plantDetailsContext, _mockPlantImageService.Object, SetupMockPlantImageService(producerId).Object);
+            var plantDetailsController = new PlantListingController(plantDetailsContext, _mockPlantImageService.Object, SetupMockPlantImageService(userId).Object);
             var actionResult = await plantDetailsController.UpdatePlantDetails(NotFoundUpdatePlantDetailsViewModel);
 
             //Assert
@@ -330,8 +328,8 @@ namespace PlantListing.Test
 
         [Theory]
         [InlineData(null)]
-        [InlineData(1)]
-        public async Task Update_plant_details_unauthorized_reponse(long? producerId)
+        [InlineData("cktan")]
+        public async Task Update_plant_details_unauthorized_reponse(string userId)
         {
             //Arrange
             var plantDetailsContext = new PlantListingContext(_dbOptions);
@@ -349,7 +347,7 @@ namespace PlantListing.Test
             };
 
             //Act
-            var plantDetailsController = new PlantListingController(plantDetailsContext,_mockPlantImageService.Object, SetupMockPlantImageService(producerId).Object);
+            var plantDetailsController = new PlantListingController(plantDetailsContext,_mockPlantImageService.Object, SetupMockPlantImageService(userId).Object);
             var actionResult = await plantDetailsController.UpdatePlantDetails(updatePlantDetailsViewModel);
 
             //Assert
@@ -374,7 +372,7 @@ namespace PlantListing.Test
             //Arrange
             var plantDetailsContext = new PlantListingContext(_dbOptions);
 
-            var producerId = 4;
+            var userId = "wpkeoh";
             var invalidUpdatePlantDetailsViewModel = new CreateUpdatePlantDetailsViewModel()
             {
                 PlantDetailsId = 5,
@@ -388,7 +386,7 @@ namespace PlantListing.Test
             };
 
             //Act
-            var plantDetailsController = new PlantListingController(plantDetailsContext, _mockPlantImageService.Object, SetupMockPlantImageService(producerId).Object);
+            var plantDetailsController = new PlantListingController(plantDetailsContext, _mockPlantImageService.Object, SetupMockPlantImageService(userId).Object);
             var actionResult = await plantDetailsController.UpdatePlantDetails(invalidUpdatePlantDetailsViewModel);
 
             //Assert
@@ -401,7 +399,7 @@ namespace PlantListing.Test
             //Arrange
             var plantDetailsContext = new PlantListingContext(_dbOptions);
 
-            var producerId = 4;
+            var userId = "wpkeoh";
             var updatePlantDetailsViewModel = new CreateUpdatePlantDetailsViewModel()
             {
                 PlantDetailsId = 5,
@@ -415,7 +413,7 @@ namespace PlantListing.Test
             };
 
             //Act
-            var plantDetailsController = new PlantListingController(plantDetailsContext, _mockPlantImageService.Object, SetupMockPlantImageService(producerId).Object);
+            var plantDetailsController = new PlantListingController(plantDetailsContext, _mockPlantImageService.Object, SetupMockPlantImageService(userId).Object);
             var actionResult = await plantDetailsController.UpdatePlantDetails(updatePlantDetailsViewModel);
 
             //Assert
@@ -423,52 +421,26 @@ namespace PlantListing.Test
         }
         #endregion
 
-        #region CreatePlantDetails
-        [Fact]
-        public async Task Create_plant_details_unauthorized_reponse()
-        {
-            //Arrange
-            var plantDetailsContext = new PlantListingContext(_dbOptions);
-
-            long? producerId = null;
-            var createPlantDetailsViewModel = new CreateUpdatePlantDetailsViewModel()
-            {
-                Name = "Bean sprouts",
-                Description = "Organic bean sprouts",
-                Category = "Vegetable",
-                Price = 0.80m,
-                Weight = 100.0m,
-                Unit = "g",
-                Stock = 100
-            };
-
-            //Act
-            var plantDetailsController = new PlantListingController(plantDetailsContext, _mockPlantImageService.Object, SetupMockPlantImageService(producerId).Object);
-            var actionResult = await plantDetailsController.CreatePlantDetails(createPlantDetailsViewModel);
-
-            //Assert
-            Assert.IsType<UnauthorizedResult>(actionResult.Result);
-        }
-
+        #region CreatePlantDetails       
         [Theory]
-        [InlineData("", "Fragrant Garlic (Small)", "Spice", 1.50, 100.0, "g", 100)] // name
-        [InlineData(null, "Fragrant Garlic (Small)", "Spice", 1.50, 100.0, "g", 100)]
-        [InlineData("Fragrant Garlic", "Fragrant Garlic (Small)", "", 1.50, 100.0, "g", 100)] // category
-        [InlineData("Fragrant Garlic", "Fragrant Garlic (Small)", null, 1.50, 100.0, "g", 100)]
-        [InlineData("Fragrant Garlic", "Fragrant Garlic (Small)", " spice", 1.50, 100.0, "g", 100)]
-        [InlineData("Fragrant Garlic", "Fragrant Garlic (Small)", "Spice", -1.50, 100.0, "g", 100)] // price
-        [InlineData("Fragrant Garlic", "Fragrant Garlic (Small)", "Spice", 1.50, 0, "g", 100)] // weight
-        [InlineData("Fragrant Garlic", "Fragrant Garlic (Small)", "Spice", 1.50, -100, "g", 100)]
-        [InlineData("Fragrant Garlic", "Fragrant Garlic (Small)", "Spice", 1.50, 100.0, "", 100)] // unit
-        [InlineData("Fragrant Garlic", "Fragrant Garlic (Small)", "Spice", 1.50, 100.0, null, 100)]
-        [InlineData("Fragrant Garlic", "Fragrant Garlic (Small)", "Spice", 1.50, 100.0, "mg", 100)]
-        [InlineData("Fragrant Garlic", "Fragrant Garlic (Small)", "Spice", 1.50, 100.0, "g", -1)] // stock
-        public async Task Create_plant_details_bad_request_reponse(string name, string description, string category, decimal price, decimal weight, string unit, int stock)
+        [InlineData(null, "Fragrant Garlic", "Fragrant Garlic (Small)", "Spice", 1.50, 100.0, "g", 100)]
+        [InlineData("cktan", "", "Fragrant Garlic (Small)", "Spice", 1.50, 100.0, "g", 100)] // name
+        [InlineData("cktan", null, "Fragrant Garlic (Small)", "Spice", 1.50, 100.0, "g", 100)]
+        [InlineData("cktan", "Fragrant Garlic", "Fragrant Garlic (Small)", "", 1.50, 100.0, "g", 100)] // category
+        [InlineData("cktan", "Fragrant Garlic", "Fragrant Garlic (Small)", null, 1.50, 100.0, "g", 100)]
+        [InlineData("cktan", "Fragrant Garlic", "Fragrant Garlic (Small)", " spice", 1.50, 100.0, "g", 100)]
+        [InlineData("cktan", "Fragrant Garlic", "Fragrant Garlic (Small)", "Spice", -1.50, 100.0, "g", 100)] // price
+        [InlineData("cktan", "Fragrant Garlic", "Fragrant Garlic (Small)", "Spice", 1.50, 0, "g", 100)] // weight
+        [InlineData("cktan", "Fragrant Garlic", "Fragrant Garlic (Small)", "Spice", 1.50, -100, "g", 100)]
+        [InlineData("cktan", "Fragrant Garlic", "Fragrant Garlic (Small)", "Spice", 1.50, 100.0, "", 100)] // unit
+        [InlineData("cktan", "Fragrant Garlic", "Fragrant Garlic (Small)", "Spice", 1.50, 100.0, null, 100)]
+        [InlineData("cktan", "Fragrant Garlic", "Fragrant Garlic (Small)", "Spice", 1.50, 100.0, "mg", 100)]
+        [InlineData("cktan", "Fragrant Garlic", "Fragrant Garlic (Small)", "Spice", 1.50, 100.0, "g", -1)] // stock
+        public async Task Create_plant_details_bad_request_reponse(string userId, string name, string description, string category, decimal price, decimal weight, string unit, int stock)
         {
             //Arrange
             var plantDetailsContext = new PlantListingContext(_dbOptions);
 
-            var producerId = 1;
             var invalidCreatePlantDetailsViewModel = new CreateUpdatePlantDetailsViewModel()
             {
                 PlantDetailsId = 0,
@@ -482,7 +454,7 @@ namespace PlantListing.Test
             };
 
             //Act
-            var plantDetailsController = new PlantListingController(plantDetailsContext, _mockPlantImageService.Object, SetupMockPlantImageService(producerId).Object);
+            var plantDetailsController = new PlantListingController(plantDetailsContext, _mockPlantImageService.Object, SetupMockPlantImageService(userId).Object);
             var actionResult = await plantDetailsController.CreatePlantDetails(invalidCreatePlantDetailsViewModel);
 
             //Assert
@@ -495,7 +467,7 @@ namespace PlantListing.Test
             //Arrange
             var plantDetailsContext = new PlantListingContext(_dbOptions);
 
-            var producerId = 1;
+            var userId = "cktan";
             var validCreatePlantDetailsViewModel = new CreateUpdatePlantDetailsViewModel()
             {
                 Name = "Bean sprouts",
@@ -515,10 +487,10 @@ namespace PlantListing.Test
             var expectedWeight = 100.0m;
             var expectedUnit = "g";
             var expectedStock = 100;
-            var expectedProducerId = 1;
+            var expectedUserId = "cktan";
 
             //Act
-            var plantDetailsController = new PlantListingController(plantDetailsContext, _mockPlantImageService.Object, SetupMockPlantImageService(producerId).Object);
+            var plantDetailsController = new PlantListingController(plantDetailsContext, _mockPlantImageService.Object, SetupMockPlantImageService(userId).Object);
             var actionResult = await plantDetailsController.CreatePlantDetails(validCreatePlantDetailsViewModel);
 
             //Assert
@@ -535,7 +507,7 @@ namespace PlantListing.Test
             Assert.Equal(expectedWeight, actualViewModel.Weight);
             Assert.Equal(expectedUnit, actualViewModel.Unit);
             Assert.Equal(expectedStock, actualViewModel.Stock);
-            Assert.Equal(expectedProducerId, actualViewModel.ProducerId);
+            Assert.Equal(expectedUserId, actualViewModel.UserId);
         }
         #endregion
 
@@ -547,10 +519,10 @@ namespace PlantListing.Test
             var plantDetailsContext = new PlantListingContext(_dbOptions_Delete);
 
             var plantDetailsId = 99;
-            var producerId = 1;
+            var userId = "cktan";
 
             //Act
-            var plantDetailsController = new PlantListingController(plantDetailsContext, _mockPlantImageService.Object, SetupMockPlantImageService(producerId).Object);
+            var plantDetailsController = new PlantListingController(plantDetailsContext, _mockPlantImageService.Object, SetupMockPlantImageService(userId).Object);
             var actionResult = await plantDetailsController.DeletePlantDetails(plantDetailsId);
 
             //Assert
@@ -559,8 +531,8 @@ namespace PlantListing.Test
 
         [Theory]
         [InlineData(null)]
-        [InlineData(1)]
-        public async Task Delete_plant_details_unauthorized_reponse(long? producerId)
+        [InlineData("cktan")]
+        public async Task Delete_plant_details_unauthorized_reponse(string userId)
         {
             //Arrange
             var plantDetailsContext = new PlantListingContext(_dbOptions_Delete);
@@ -568,7 +540,7 @@ namespace PlantListing.Test
             var plantDetailsId = 7;
 
             //Act
-            var plantDetailsController = new PlantListingController(plantDetailsContext, _mockPlantImageService.Object, SetupMockPlantImageService(producerId).Object);
+            var plantDetailsController = new PlantListingController(plantDetailsContext, _mockPlantImageService.Object, SetupMockPlantImageService(userId).Object);
             var actionResult = await plantDetailsController.DeletePlantDetails(plantDetailsId);
 
             //Assert
@@ -582,10 +554,10 @@ namespace PlantListing.Test
             var plantDetailsContext = new PlantListingContext(_dbOptions_Delete);
 
             var plantDetailsId = 8;
-            var producerId = 4;
+            var userId = "wpkeoh";
 
             //Act
-            var plantDetailsController = new PlantListingController(plantDetailsContext, _mockPlantImageService.Object, SetupMockPlantImageService(producerId).Object);
+            var plantDetailsController = new PlantListingController(plantDetailsContext, _mockPlantImageService.Object, SetupMockPlantImageService(userId).Object);
             var actionResult = await plantDetailsController.DeletePlantDetails(plantDetailsId);
 
             //Assert

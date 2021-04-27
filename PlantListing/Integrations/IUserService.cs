@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 
 namespace PlantListing.Integrations
 {
-    public interface IProducerService
+    public interface IUserService
     {
-        public bool TryGetProducerId(string userId, out long producerId);
+        public string GetUserId();
     }
 }

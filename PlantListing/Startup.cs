@@ -42,9 +42,14 @@ namespace PlantListing
                 .Configure<AWSSettings>(Configuration.GetSection(AWSSettings.AWS)) // Read option from "AWS" environment variable
                 .AddTransient<IPlantImageService, PlantImageService>()
                 .Configure<ProducerServiceSettings>(Configuration.GetSection(ProducerServiceSettings.ProducerService)) // Read option from "AWS" environment variable
-                .AddTransient<IProducerService, ProducerService>();
-                
-            services.AddHttpClient<ProducerServiceClient>();
+                .AddTransient<IUserService, UserService>();
+
+            //services.AddHttpClient<ProducerServiceClient>();
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("Producers", policy => policy.RequireClaim("cognito:groups", "Producers"));
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline
@@ -62,6 +67,7 @@ namespace PlantListing
             app.UseRouting();
 
             app.UseAuthorization();
+            app.UseAuthentication();
 
             app.UseEndpoints(endpoints =>
             {
@@ -71,11 +77,6 @@ namespace PlantListing
                     await context.Response.WriteAsync("Welcome to running ASP.NET Core on AWS Lambda");
                 });
             });
-
-            //var loggerOptions = new LambdaLoggerOptions(Configuration);
-
-            //// Configure Lambda logging
-            //loggerFactory.AddLambdaLogger(loggerOptions);
         }
     }
 }

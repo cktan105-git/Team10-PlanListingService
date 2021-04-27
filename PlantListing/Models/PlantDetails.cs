@@ -25,11 +25,11 @@ namespace PlantListing.Models
 
         public string ImageName { get; set; }
 
-        public long ProducerId { get; set; }
+        public string UserId { get; set; }
 
         public bool IsValid()
         {
-            if(string.IsNullOrWhiteSpace(Name) || Name.Length > 100 || (!string.IsNullOrEmpty(Description) && Description.Length > 500) || CategoryId <= 0 || Price < 0.00m || Weight <= 0.00m || UnitId <= 0 || Stock < 0 || ProducerId <= 0 )
+            if(string.IsNullOrWhiteSpace(Name) || Name.Length > 100 || (!string.IsNullOrEmpty(Description) && Description.Length > 500) || CategoryId <= 0 || Price < 0.00m || Weight <= 0.00m || UnitId <= 0 || Stock < 0 || string.IsNullOrEmpty(UserId) )
             {
                 return false;
             }

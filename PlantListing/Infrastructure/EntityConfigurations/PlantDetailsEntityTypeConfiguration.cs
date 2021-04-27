@@ -28,11 +28,6 @@ namespace PlantListing.Infrastructure.EntityConfigurations
                 .IsRequired(false)
                 .HasMaxLength(500);
 
-            //builder.HasOne(ci => ci.PlantCategory)
-            //      .WithMany()
-            //      .HasForeignKey(ci => ci.CategoryId)
-            //      .OnDelete(DeleteBehavior.Restrict);
-
             builder.Property(ci => ci.CategoryId)
                 .IsRequired(true);
 
@@ -44,11 +39,6 @@ namespace PlantListing.Infrastructure.EntityConfigurations
                 .IsRequired(true)
                 .HasPrecision(18, 2);
 
-            //builder.HasOne(ci => ci.WeightUnit)
-            //    .WithMany()
-            //    .HasForeignKey(ci => ci.UnitId)
-            //    .OnDelete(DeleteBehavior.Restrict);
-
             builder.Property(ci => ci.UnitId)
                 .IsRequired(true);
 
@@ -57,6 +47,10 @@ namespace PlantListing.Infrastructure.EntityConfigurations
 
             builder.Property(ci => ci.ImageName)
                 .IsRequired(false);
+
+            builder.Property(ci => ci.UserId)
+                .IsRequired(true)
+                .HasMaxLength(100);
 
             // To seed data
             builder.HasData(PlantListingContextSeed.GetPreconfiguredPlantDetails());

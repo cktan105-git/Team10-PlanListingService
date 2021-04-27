@@ -8,6 +8,9 @@
 		<UserSecretsId>fb69113f-64e5-4bd9-a28f-df697f2d79f2</UserSecretsId>
 	</PropertyGroup>
 	<ItemGroup>
+	  <Compile Remove="Integrations\ProducerServiceClient.cs" />
+	</ItemGroup>
+	<ItemGroup>
 		<PackageReference Include="Amazon.Lambda.AspNetCoreServer" Version="5.3.0" />
 		<PackageReference Include="Amazon.AspNetCore.Identity.Cognito" Version="2.2.0" />
 		<PackageReference Include="Amazon.Extensions.CognitoAuthentication" Version="2.2.0" />

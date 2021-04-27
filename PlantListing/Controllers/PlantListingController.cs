@@ -16,6 +16,7 @@ using Amazon.Extensions.CognitoAuthentication;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Amazon.Lambda.Core;
+using Microsoft.AspNetCore.Authorization;
 
 namespace PlantListing.Controllers
 {
@@ -26,13 +27,13 @@ namespace PlantListing.Controllers
     {
         private readonly PlantListingContext _context;
         private readonly IPlantImageService _plantImageService;
-        private readonly IProducerService _producerService;
+        private readonly IUserService _userService;
 
-        public PlantListingController(PlantListingContext context, IPlantImageService plantImageService, IProducerService producerService)
+        public PlantListingController(PlantListingContext context, IPlantImageService plantImageService, IUserService userService)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _plantImageService = plantImageService ?? throw new ArgumentNullException(nameof(plantImageService));
-            _producerService = producerService ?? throw new ArgumentNullException(nameof(producerService));
+            _userService = userService ?? throw new ArgumentNullException(nameof(userService));
         }
 
         // GET: api/v1/PlantListing/[?pageSize=5&pageIndex=10]
@@ -91,14 +92,17 @@ namespace PlantListing.Controllers
             return new PaginatedItemsViewModel<PlantDetailsViewModel>(pageIndex, pageSize, totalItems, MapToViewModels(itemsOnPage));
         }
 
-        // GET: api/v1/PlantListing/{producerId}
+        // GET: api/v1/PlantListing/MyPlantListing
         [HttpGet]
-        [Route("{producerId:long?}")]
+        [Route("MyPlantListing")]
         [ProducesResponseType(typeof(PaginatedItemsViewModel<PlantDetailsViewModel>), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<PaginatedItemsViewModel<PlantDetailsViewModel>>> GetPlantListingByProducerId(long producerId, [FromQuery] int pageSize = 5, [FromQuery] int pageIndex = 0)
+        [Authorize(Policy = "Producers")]
+        public async Task<ActionResult<PaginatedItemsViewModel<PlantDetailsViewModel>>> GetMyPlantListing([FromQuery] int pageSize = 5, [FromQuery] int pageIndex = 0)
         {
+            var userId = GetUserId();
+
             var root = (IQueryable<PlantDetails>)_context.PlantDetails;
-            root = root.Where(d => d.ProducerId == producerId);
+            root = root.Where(d => d.UserId == userId);
 
             var totalItems = await root
                 .LongCountAsync();
@@ -198,6 +202,7 @@ namespace PlantListing.Controllers
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [Authorize(Policy = "Producers")]
         public async Task<IActionResult> UpdatePlantDetails([FromForm] CreateUpdatePlantDetailsViewModel plantDetailsViewModel)
         {
             var plantDetails = await _context.PlantDetails.FindAsync(plantDetailsViewModel.PlantDetailsId);
@@ -206,7 +211,7 @@ namespace PlantListing.Controllers
                 return NotFound(new { Message = $"Plant details with id {plantDetailsViewModel.PlantDetailsId} not found." });
             }
 
-            if(!_producerService.TryGetProducerId(GetUserId(), out long producerId) || plantDetails.ProducerId != producerId)
+            if(plantDetails.UserId != GetUserId())
             {
                 return Unauthorized();
             }
@@ -247,20 +252,15 @@ namespace PlantListing.Controllers
         // POST: api/v1/PlantListing/PlantDetails
         [HttpPost]
         [Route("PlantDetails")]
-        [ProducesResponseType((int)HttpStatusCode.Unauthorized)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.Created)]
         [ProducesResponseType(typeof(PlantDetailsViewModel), (int)HttpStatusCode.OK)]
+        [Authorize(Policy = "Producers")]
         public async Task<ActionResult<PlantDetailsViewModel>> CreatePlantDetails([FromForm] CreateUpdatePlantDetailsViewModel plantDetailsViewModel)
         {
-            if (!_producerService.TryGetProducerId(GetUserId(), out long producerId))
-            {
-                return Unauthorized();
-            }
-
             var plantDetails = new PlantDetails();
             GetChangesFromViewModel(plantDetails, plantDetailsViewModel);
-            plantDetails.ProducerId = producerId;
+            plantDetails.UserId = GetUserId();
 
             if (!plantDetails.IsValid() || (plantDetailsViewModel.ImageFile != null && !plantDetailsViewModel.ImageFile.IsValidImage()))
             {
@@ -285,6 +285,7 @@ namespace PlantListing.Controllers
         [ProducesResponseType((int)HttpStatusCode.Unauthorized)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [Authorize(Policy = "Producers")]
         public async Task<IActionResult> DeletePlantDetails(long plantDetailsId)
         {
             var plantDetails = await _context.PlantDetails.FindAsync(plantDetailsId);
@@ -293,7 +294,7 @@ namespace PlantListing.Controllers
                 return NotFound(new { Message = $"Plant details with id {plantDetailsId} not found." });
             }
 
-            if (!_producerService.TryGetProducerId(GetUserId(), out long producerId) || plantDetails.ProducerId != producerId)
+            if (plantDetails.UserId != GetUserId())
             {
                 return Unauthorized();
             }
@@ -312,7 +313,7 @@ namespace PlantListing.Controllers
         private string GetUserId()
         {
             // TODO: Get this information from sign in user
-            return "User1";
+            return _userService.GetUserId();
         }
 
         private bool PlantDetailsExists(long id)
@@ -334,7 +335,7 @@ namespace PlantListing.Controllers
                 Stock = plantDetails.Stock,
                 ImageName = plantDetails.ImageName,
                 ImageUri = _plantImageService.GetPlantImageUri(plantDetails.ImageName),
-                ProducerId = plantDetails.ProducerId
+                UserId = plantDetails.UserId
             };
         }
 
