@@ -40,7 +40,7 @@ namespace PlantListing.Images
             // create unique file name for prevent the mess
             var fileName = $"{Guid.NewGuid()}_{file.FileName}";
 
-            return await UploadImageAsync(fileName, file.ContentType, fileBytes); ;
+            return await UploadImageAsync(fileName, GetImageContentType(fileName), fileBytes); ;
         }
 
         public async Task<PlantImageViewModel> ReplaceImageAsync(string oldFileName, IFormFile file)
@@ -103,6 +103,12 @@ namespace PlantListing.Images
             }
         }
 
+        private string GetImageContentType(string fileName)
+        {
+            var fileExtension = Path.GetExtension(fileName);
+            return $"image/{fileExtension}";
+        }
+
         private async Task<PlantImageViewModel> UploadImageAsync(string fileName, string contentType, byte[] fileBytes)
         {
             try
@@ -116,7 +122,7 @@ namespace PlantListing.Images
                         BucketName = _options.Value.ImageS3BucketName,
                         Key = fileName,
                         InputStream = stream,
-                        //ContentType = contentType,
+                        ContentType = contentType,
                         //CannedACL = S3CannedACL.PublicRead // enable public read access
                     };
 

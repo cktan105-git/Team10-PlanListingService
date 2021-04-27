@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Amazon.Lambda.AspNetCoreServer;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
@@ -35,6 +36,8 @@ namespace PlantListing
         /// <param name="builder"></param>
         protected override void Init(IWebHostBuilder builder)
         {
+            RegisterResponseContentEncodingForContentType("multipart/form-data", ResponseContentEncoding.Base64);
+
             builder
                 .ConfigureAppConfiguration((context, builder) =>
                 {
