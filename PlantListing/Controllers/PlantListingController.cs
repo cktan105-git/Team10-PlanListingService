@@ -221,9 +221,9 @@ namespace PlantListing.Controllers
 
             if ((plantDetailsViewModel.ImageFile != null && !plantDetailsViewModel.ImageFile.IsValidImage()))
             {
-                LambdaLogger.Log("Invalid image");
+                //LambdaLogger.Log("Invalid image");
                 //LambdaLogger.Log(JsonConvert.SerializeObject(plantDetailsViewModel));
-                return BadRequest("Invalid image.");
+                return BadRequest(new { Message = $"Invalid image" });
             }
 
             try
@@ -275,9 +275,9 @@ namespace PlantListing.Controllers
 
             if ((plantDetailsViewModel.ImageFile != null && !plantDetailsViewModel.ImageFile.IsValidImage()))
             {
-                LambdaLogger.Log("Invalid image");
+                //LambdaLogger.Log("Invalid image");
                 //LambdaLogger.Log(JsonConvert.SerializeObject(plantDetailsViewModel));
-                return BadRequest("Invalid image.");
+                return BadRequest(new { Message = $"Invalid image" });
             }
 
             if (plantDetailsViewModel.ImageFile != null)

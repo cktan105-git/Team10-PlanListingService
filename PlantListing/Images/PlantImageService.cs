@@ -40,7 +40,7 @@ namespace PlantListing.Images
             // create unique file name for prevent the mess
             var fileName = $"{Guid.NewGuid()}_{file.FileName}";
 
-            return await UploadImageAsync(fileName, GetImageContentType(fileName), fileBytes); ;
+            return await UploadImageAsync(fileName, file.ContentType, fileBytes); ;
         }
 
         public async Task<PlantImageViewModel> ReplaceImageAsync(string oldFileName, IFormFile file)
@@ -101,12 +101,6 @@ namespace PlantListing.Images
 
                 return false;
             }
-        }
-
-        private string GetImageContentType(string fileName)
-        {
-            var fileExtension = Path.GetExtension(fileName);
-            return $"image/{fileExtension}";
         }
 
         private async Task<PlantImageViewModel> UploadImageAsync(string fileName, string contentType, byte[] fileBytes)
