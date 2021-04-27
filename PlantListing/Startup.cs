@@ -15,7 +15,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using PlantListing.Extensions;
 using PlantListing.Images;
-using PlantListing.Integrations;
 using Amazon.XRay.Recorder.Handlers.AwsSdk;
 
 namespace PlantListing
@@ -41,8 +40,7 @@ namespace PlantListing
                 .AddAWSService<IAmazonS3>() // Adds Amazon S3
                 .Configure<AWSSettings>(Configuration.GetSection(AWSSettings.AWS)) // Read option from "AWS" environment variable
                 .AddTransient<IPlantImageService, PlantImageService>()
-                .Configure<ProducerServiceSettings>(Configuration.GetSection(ProducerServiceSettings.ProducerService)) // Read option from "AWS" environment variable
-                .AddTransient<IUserService, UserService>();
+                .Configure<ProducerServiceSettings>(Configuration.GetSection(ProducerServiceSettings.ProducerService)); // Read option from "AWS" environment variable
 
             //services.AddHttpClient<ProducerServiceClient>();
 

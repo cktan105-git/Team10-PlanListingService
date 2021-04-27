@@ -13,7 +13,6 @@ using PlantListing.Infrastructure;
 using PlantListing.Models;
 using PlantListing.ViewModels;
 using Xunit;
-using PlantListing.Integrations;
 using Microsoft.Extensions.Logging;
 
 namespace PlantListing.Test
@@ -65,14 +64,6 @@ namespace PlantListing.Test
             }
         }
 
-        private Mock<IUserService> SetupMockPlantImageService(string userId = "cktan")
-        {            
-            var mockUserService = new Mock<IUserService>();
-            mockUserService.Setup(c => c.GetUserId()).Returns(userId);
-
-            return mockUserService;
-        }
-
         #region GetPlantListing
         [Theory]
         [InlineData(10, 0, 8)]
@@ -85,7 +76,7 @@ namespace PlantListing.Test
             var plantDetailsContext = new PlantListingContext(_dbOptions);
 
             //Act
-            var plantDetailsController = new PlantListingController(plantDetailsContext, _mockPlantImageService.Object, SetupMockPlantImageService().Object);
+            var plantDetailsController = new PlantListingController(plantDetailsContext, _mockPlantImageService.Object);
             var actionResult = await plantDetailsController.GetPlantListing(pageSize, pageIndex);
 
             //Assert
@@ -108,7 +99,7 @@ namespace PlantListing.Test
             var plantDetailsContext = new PlantListingContext(_dbOptions);
 
             //Act
-            var plantDetailsController = new PlantListingController(plantDetailsContext, _mockPlantImageService.Object, SetupMockPlantImageService().Object);
+            var plantDetailsController = new PlantListingController(plantDetailsContext, _mockPlantImageService.Object);
             var actionResult = await plantDetailsController.GetPlantListingByPlantDetailsIds(plantDetailsIds, pageSize, pageIndex);
 
             //Assert
@@ -128,7 +119,7 @@ namespace PlantListing.Test
             var plantDetailsContext = new PlantListingContext(_dbOptions);
 
             //Act
-            var plantDetailsController = new PlantListingController(plantDetailsContext, _mockPlantImageService.Object, SetupMockPlantImageService().Object);
+            var plantDetailsController = new PlantListingController(plantDetailsContext, _mockPlantImageService.Object);
             var actionResult = await plantDetailsController.GetPlantListingByPlantDetailsIds(plantDetailsIds, pageSize, pageIndex);
 
             //Assert
@@ -152,8 +143,13 @@ namespace PlantListing.Test
             var plantDetailsContext = new PlantListingContext(_dbOptions);
 
             //Act
-            var plantDetailsController = new PlantListingController(plantDetailsContext, _mockPlantImageService.Object, SetupMockPlantImageService(userId).Object);
-            var actionResult = await plantDetailsController.GetMyPlantListing(pageSize, pageIndex);
+            var plantDetailsController = new PlantListingController(plantDetailsContext, _mockPlantImageService.Object);
+            var actionResult = await plantDetailsController.GetMyPlantListing(new GetMyPlantListingViewModel()
+            {
+                UserId = userId,
+                PageSize = pageSize,
+                PageIndex = pageIndex
+            });;
 
             //Assert
             Assert.IsType<ActionResult<PaginatedItemsViewModel<PlantDetailsViewModel>>>(actionResult);
@@ -177,7 +173,7 @@ namespace PlantListing.Test
             var plantDetailsContext = new PlantListingContext(_dbOptions);
 
             //Act
-            var plantDetailsController = new PlantListingController(plantDetailsContext, _mockPlantImageService.Object, SetupMockPlantImageService().Object);
+            var plantDetailsController = new PlantListingController(plantDetailsContext, _mockPlantImageService.Object);
             var actionResult = await plantDetailsController.GetPlantListingByCategoryId(categoryId, pageSize, pageIndex);
 
             //Assert
@@ -194,7 +190,7 @@ namespace PlantListing.Test
             var plantDetailsContext = new PlantListingContext(_dbOptions);
 
             //Act
-            var plantDetailsController = new PlantListingController(plantDetailsContext, _mockPlantImageService.Object, SetupMockPlantImageService().Object);
+            var plantDetailsController = new PlantListingController(plantDetailsContext, _mockPlantImageService.Object);
             var actionResult = await plantDetailsController.SearchPlantListing(null);
 
             //Assert
@@ -221,7 +217,7 @@ namespace PlantListing.Test
             var plantDetailsContext = new PlantListingContext(_dbOptions);
 
             //Act
-            var plantDetailsController = new PlantListingController(plantDetailsContext, _mockPlantImageService.Object, SetupMockPlantImageService().Object);
+            var plantDetailsController = new PlantListingController(plantDetailsContext, _mockPlantImageService.Object);
             var actionResult = await plantDetailsController.SearchPlantListing(keyword, categoryId, pageSize, pageIndex);
 
             //Assert
@@ -240,7 +236,7 @@ namespace PlantListing.Test
             var plantDetailsContext = new PlantListingContext(_dbOptions);
 
             //Act
-            var plantDetailsController = new PlantListingController(plantDetailsContext, _mockPlantImageService.Object, SetupMockPlantImageService().Object);
+            var plantDetailsController = new PlantListingController(plantDetailsContext, _mockPlantImageService.Object);
             var actionResult = await plantDetailsController.GetPlantDetails(plantDetailsId);
 
             //Assert
@@ -256,7 +252,7 @@ namespace PlantListing.Test
             var plantDetailsId = 999;
 
             //Act
-            var plantDetailsController = new PlantListingController(plantDetailsContext, _mockPlantImageService.Object, SetupMockPlantImageService().Object);
+            var plantDetailsController = new PlantListingController(plantDetailsContext, _mockPlantImageService.Object);
             var actionResult = await plantDetailsController.GetPlantDetails(plantDetailsId);
 
             //Assert
@@ -281,7 +277,7 @@ namespace PlantListing.Test
             var expectedUserId = "mgkoh";
 
             //Act
-            var plantDetailsController = new PlantListingController(plantDetailsContext, _mockPlantImageService.Object, SetupMockPlantImageService().Object);
+            var plantDetailsController = new PlantListingController(plantDetailsContext, _mockPlantImageService.Object);
             var actionResult = await plantDetailsController.GetPlantDetails(plantDetailsId);
 
             //Assert
@@ -315,11 +311,12 @@ namespace PlantListing.Test
                 Price = 0.80m,
                 Weight = 200.0m,
                 Unit = "g",
-                Stock = 100
+                Stock = 100,
+                UserId = userId
             };
 
             //Act
-            var plantDetailsController = new PlantListingController(plantDetailsContext, _mockPlantImageService.Object, SetupMockPlantImageService(userId).Object);
+            var plantDetailsController = new PlantListingController(plantDetailsContext, _mockPlantImageService.Object);
             var actionResult = await plantDetailsController.UpdatePlantDetails(NotFoundUpdatePlantDetailsViewModel);
 
             //Assert
@@ -343,11 +340,12 @@ namespace PlantListing.Test
                 Price = 1.50m,
                 Weight = 100.0m,
                 Unit = "g",
-                Stock = 100
+                Stock = 100,
+                UserId = userId
             };
 
             //Act
-            var plantDetailsController = new PlantListingController(plantDetailsContext,_mockPlantImageService.Object, SetupMockPlantImageService(userId).Object);
+            var plantDetailsController = new PlantListingController(plantDetailsContext,_mockPlantImageService.Object);
             var actionResult = await plantDetailsController.UpdatePlantDetails(updatePlantDetailsViewModel);
 
             //Assert
@@ -382,11 +380,12 @@ namespace PlantListing.Test
                 Price = price,
                 Weight = weight,
                 Unit = unit,
-                Stock = stock
+                Stock = stock,
+                UserId = userId
             };
 
             //Act
-            var plantDetailsController = new PlantListingController(plantDetailsContext, _mockPlantImageService.Object, SetupMockPlantImageService(userId).Object);
+            var plantDetailsController = new PlantListingController(plantDetailsContext, _mockPlantImageService.Object);
             var actionResult = await plantDetailsController.UpdatePlantDetails(invalidUpdatePlantDetailsViewModel);
 
             //Assert
@@ -409,11 +408,12 @@ namespace PlantListing.Test
                 Price = 1.50m,
                 Weight = 100.0m,
                 Unit = "g",
-                Stock = 100
+                Stock = 100,
+                UserId = userId
             };
 
             //Act
-            var plantDetailsController = new PlantListingController(plantDetailsContext, _mockPlantImageService.Object, SetupMockPlantImageService(userId).Object);
+            var plantDetailsController = new PlantListingController(plantDetailsContext, _mockPlantImageService.Object);
             var actionResult = await plantDetailsController.UpdatePlantDetails(updatePlantDetailsViewModel);
 
             //Assert
@@ -450,11 +450,12 @@ namespace PlantListing.Test
                 Price = price,
                 Weight = weight,
                 Unit = unit,
-                Stock = stock
+                Stock = stock,
+                UserId = userId
             };
 
             //Act
-            var plantDetailsController = new PlantListingController(plantDetailsContext, _mockPlantImageService.Object, SetupMockPlantImageService(userId).Object);
+            var plantDetailsController = new PlantListingController(plantDetailsContext, _mockPlantImageService.Object);
             var actionResult = await plantDetailsController.CreatePlantDetails(invalidCreatePlantDetailsViewModel);
 
             //Assert
@@ -476,7 +477,8 @@ namespace PlantListing.Test
                 Price = 0.80m,
                 Weight = 100.0m,
                 Unit = "g",
-                Stock = 100
+                Stock = 100,
+                UserId = userId
             };
 
             var expectedPlantDetailsId = 9;
@@ -490,7 +492,7 @@ namespace PlantListing.Test
             var expectedUserId = "cktan";
 
             //Act
-            var plantDetailsController = new PlantListingController(plantDetailsContext, _mockPlantImageService.Object, SetupMockPlantImageService(userId).Object);
+            var plantDetailsController = new PlantListingController(plantDetailsContext, _mockPlantImageService.Object);
             var actionResult = await plantDetailsController.CreatePlantDetails(validCreatePlantDetailsViewModel);
 
             //Assert
@@ -522,8 +524,12 @@ namespace PlantListing.Test
             var userId = "cktan";
 
             //Act
-            var plantDetailsController = new PlantListingController(plantDetailsContext, _mockPlantImageService.Object, SetupMockPlantImageService(userId).Object);
-            var actionResult = await plantDetailsController.DeletePlantDetails(plantDetailsId);
+            var plantDetailsController = new PlantListingController(plantDetailsContext, _mockPlantImageService.Object);
+            var actionResult = await plantDetailsController.DeletePlantDetails(new DeletePlantDetailsViewModel()
+            { 
+                UserId = userId,
+                PlantDetailsId = plantDetailsId
+            });
 
             //Assert
             Assert.IsType<NotFoundObjectResult>(actionResult);
@@ -540,8 +546,12 @@ namespace PlantListing.Test
             var plantDetailsId = 7;
 
             //Act
-            var plantDetailsController = new PlantListingController(plantDetailsContext, _mockPlantImageService.Object, SetupMockPlantImageService(userId).Object);
-            var actionResult = await plantDetailsController.DeletePlantDetails(plantDetailsId);
+            var plantDetailsController = new PlantListingController(plantDetailsContext, _mockPlantImageService.Object);
+            var actionResult = await plantDetailsController.DeletePlantDetails(new DeletePlantDetailsViewModel()
+            {
+                UserId = userId,
+                PlantDetailsId = plantDetailsId
+            });
 
             //Assert
             Assert.IsType<UnauthorizedResult>(actionResult);
@@ -557,8 +567,12 @@ namespace PlantListing.Test
             var userId = "wpkeoh";
 
             //Act
-            var plantDetailsController = new PlantListingController(plantDetailsContext, _mockPlantImageService.Object, SetupMockPlantImageService(userId).Object);
-            var actionResult = await plantDetailsController.DeletePlantDetails(plantDetailsId);
+            var plantDetailsController = new PlantListingController(plantDetailsContext, _mockPlantImageService.Object);
+            var actionResult = await plantDetailsController.DeletePlantDetails(new DeletePlantDetailsViewModel()
+            {
+                UserId = userId,
+                PlantDetailsId = plantDetailsId
+            });
 
             //Assert
             Assert.IsType<NoContentResult>(actionResult);

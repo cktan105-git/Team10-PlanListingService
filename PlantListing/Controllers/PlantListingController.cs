@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using PlantListing.Extensions;
 using PlantListing.Images;
 using PlantListing.Infrastructure;
-using PlantListing.Integrations;
 using PlantListing.Models;
 using PlantListing.ViewModels;
 using System;
@@ -27,13 +26,11 @@ namespace PlantListing.Controllers
     {
         private readonly PlantListingContext _context;
         private readonly IPlantImageService _plantImageService;
-        private readonly IUserService _userService;
 
-        public PlantListingController(PlantListingContext context, IPlantImageService plantImageService, IUserService userService)
+        public PlantListingController(PlantListingContext context, IPlantImageService plantImageService)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _plantImageService = plantImageService ?? throw new ArgumentNullException(nameof(plantImageService));
-            _userService = userService ?? throw new ArgumentNullException(nameof(userService));
         }
 
         // GET: api/v1/PlantListing/[?pageSize=5&pageIndex=10]
@@ -93,26 +90,24 @@ namespace PlantListing.Controllers
         }
 
         // GET: api/v1/PlantListing/MyPlantListing
-        [HttpGet]
+        [HttpPost]
         [Route("MyPlantListing")]
         [ProducesResponseType(typeof(PaginatedItemsViewModel<PlantDetailsViewModel>), (int)HttpStatusCode.OK)]
-        [Authorize(Policy = "Producers")]
-        public async Task<ActionResult<PaginatedItemsViewModel<PlantDetailsViewModel>>> GetMyPlantListing([FromQuery] int pageSize = 5, [FromQuery] int pageIndex = 0)
+        //[Authorize(Policy = "Producers")]
+        public async Task<ActionResult<PaginatedItemsViewModel<PlantDetailsViewModel>>> GetMyPlantListing([FromBody] GetMyPlantListingViewModel viewModel)
         {
-            var userId = GetUserId();
-
             var root = (IQueryable<PlantDetails>)_context.PlantDetails;
-            root = root.Where(d => d.UserId == userId);
+            root = root.Where(d => d.UserId == viewModel.UserId);
 
             var totalItems = await root
                 .LongCountAsync();
 
             var itemsOnPage = await root
-                .Skip(pageSize * pageIndex)
-                .Take(pageSize)
+                .Skip(viewModel.PageSize * viewModel.PageIndex)
+                .Take(viewModel.PageSize)
                 .ToListAsync();
 
-            return new PaginatedItemsViewModel<PlantDetailsViewModel>(pageIndex, pageSize, totalItems, MapToViewModels(itemsOnPage));
+            return new PaginatedItemsViewModel<PlantDetailsViewModel>(viewModel.PageIndex, viewModel.PageSize, totalItems, MapToViewModels(itemsOnPage));
         }
 
         // GET: api/v1/PlantListing/Category/{categoryId}
@@ -202,7 +197,7 @@ namespace PlantListing.Controllers
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
-        [Authorize(Policy = "Producers")]
+        //[Authorize(Policy = "Producers")]
         public async Task<IActionResult> UpdatePlantDetails([FromForm] CreateUpdatePlantDetailsViewModel plantDetailsViewModel)
         {
             var plantDetails = await _context.PlantDetails.FindAsync(plantDetailsViewModel.PlantDetailsId);
@@ -211,7 +206,7 @@ namespace PlantListing.Controllers
                 return NotFound(new { Message = $"Plant details with id {plantDetailsViewModel.PlantDetailsId} not found." });
             }
 
-            if(plantDetails.UserId != GetUserId())
+            if(plantDetails.UserId != plantDetailsViewModel.UserId)
             {
                 return Unauthorized();
             }
@@ -255,12 +250,12 @@ namespace PlantListing.Controllers
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.Created)]
         [ProducesResponseType(typeof(PlantDetailsViewModel), (int)HttpStatusCode.OK)]
-        [Authorize(Policy = "Producers")]
+        //[Authorize(Policy = "Producers")]
         public async Task<ActionResult<PlantDetailsViewModel>> CreatePlantDetails([FromForm] CreateUpdatePlantDetailsViewModel plantDetailsViewModel)
         {
             var plantDetails = new PlantDetails();
             GetChangesFromViewModel(plantDetails, plantDetailsViewModel);
-            plantDetails.UserId = GetUserId();
+            plantDetails.UserId = plantDetailsViewModel.UserId;
 
             if (!plantDetails.IsValid() || (plantDetailsViewModel.ImageFile != null && !plantDetailsViewModel.ImageFile.IsValidImage()))
             {
@@ -279,22 +274,22 @@ namespace PlantListing.Controllers
             return CreatedAtAction("GetPlantDetails", new { id = plantDetails.PlantDetailsId }, MapToViewModel(plantDetails));
         }
 
-        // DELETE: api/v1/PlantListing/PlantDetails/{plantDetailsId}
+        // DELETE: api/v1/PlantListing/PlantDetails
         [HttpDelete]
-        [Route("PlantDetails/{plantDetailsId:long?}")]
+        [Route("PlantDetails")]
         [ProducesResponseType((int)HttpStatusCode.Unauthorized)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
-        [Authorize(Policy = "Producers")]
-        public async Task<IActionResult> DeletePlantDetails(long plantDetailsId)
+        //[Authorize(Policy = "Producers")]
+        public async Task<IActionResult> DeletePlantDetails([FromBody] DeletePlantDetailsViewModel viewModel)
         {
-            var plantDetails = await _context.PlantDetails.FindAsync(plantDetailsId);
+            var plantDetails = await _context.PlantDetails.FindAsync(viewModel.PlantDetailsId);
             if (plantDetails == null)
             {
-                return NotFound(new { Message = $"Plant details with id {plantDetailsId} not found." });
+                return NotFound(new { Message = $"Plant details with id {viewModel.PlantDetailsId} not found." });
             }
 
-            if (plantDetails.UserId != GetUserId())
+            if (plantDetails.UserId != viewModel.UserId)
             {
                 return Unauthorized();
             }
@@ -310,11 +305,11 @@ namespace PlantListing.Controllers
             return NoContent();
         }
 
-        private string GetUserId()
-        {
-            // TODO: Get this information from sign in user
-            return _userService.GetUserId();
-        }
+        //private string GetUserId()
+        //{
+        //    // TODO: Get this information from sign in user
+        //    return _userService.GetUserId();
+        //}
 
         private bool PlantDetailsExists(long id)
         {

@@ -16,6 +16,7 @@ namespace PlantListing.ViewModels
         public decimal Weight { get; set; }
         public string Unit { get; set; }
         public int Stock { get; set; }
+        public string UserId { get; set; }
         public IFormFile ImageFile { get; set; }
     }
 }
