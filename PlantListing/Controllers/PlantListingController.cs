@@ -48,10 +48,10 @@ namespace PlantListing.Controllers
                 .Take(pageSize)
                 .ToListAsync();
 
-            LambdaLogger.Log("User Information:");
-            LambdaLogger.Log(JsonConvert.SerializeObject(this.User?.Claims));
-            LambdaLogger.Log(JsonConvert.SerializeObject(this.User?.Identities));
-            LambdaLogger.Log(JsonConvert.SerializeObject(this.User?.Identity));
+            //LambdaLogger.Log("User Information:");
+            //LambdaLogger.Log(JsonConvert.SerializeObject(this.User?.Claims));
+            //LambdaLogger.Log(JsonConvert.SerializeObject(this.User?.Identities));
+            //LambdaLogger.Log(JsonConvert.SerializeObject(this.User?.Identity));
 
             return new PaginatedItemsViewModel<PlantDetailsViewModel>(pageIndex, pageSize, totalItems, MapToViewModels(itemsOnPage));
         }

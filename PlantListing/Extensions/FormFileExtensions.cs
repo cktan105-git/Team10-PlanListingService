@@ -41,7 +41,6 @@ namespace PlantListing.Extensions
             {
                 if (!file.OpenReadStream().CanRead)
                 {
-                    LambdaLogger.Log("!file.OpenReadStream().CanRead");
                     return false;
                 }
                 //------------------------------------------
@@ -49,13 +48,11 @@ namespace PlantListing.Extensions
                 //------------------------------------------ 
                 if (file.Length < minBytes)
                 {
-                    LambdaLogger.Log("file.Length < minBytes");
                     return false;
                 }
 
                 if(file.Length > maxBytes)
                 {
-                    LambdaLogger.Log("file.Length > maxBytes");
                     return false;
                 }
 
@@ -65,16 +62,13 @@ namespace PlantListing.Extensions
                 if (Regex.IsMatch(content, @"<script|<html|<head|<title|<body|<pre|<table|<a\s+href|<img|<plaintext|<cross\-domain\-policy",
                     RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Multiline))
                 {
-                    LambdaLogger.Log("Regex.IsMatch");
                     return false;
                 }
 
                 return true;
             }
-            catch (Exception ex)
+            catch
             {
-                LambdaLogger.Log("OpenReadStream exception");
-                LambdaLogger.Log(ex.ToString());
                 return false;
             }
             //finally
