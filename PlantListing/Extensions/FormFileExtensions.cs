@@ -14,16 +14,6 @@ namespace PlantListing.Extensions
     {
         public static bool IsValidImage(this IFormFile file, int minBytes = 512, int maxBytes = 3145728)
         {
-            ////-------------------------------------------
-            ////  Check the image mime types
-            ////-------------------------------------------
-            //if (file.ContentType.ToLower() != "image/jpg" 
-            //    && file.ContentType.ToLower() != "image/jpeg"
-            //    && file.ContentType.ToLower() != "image/png")
-            //{
-            //    return false;
-            //}
-
             //-------------------------------------------
             //  Check the image extension
             //-------------------------------------------
@@ -70,38 +60,7 @@ namespace PlantListing.Extensions
             catch
             {
                 return false;
-            }
-            //finally
-            //{
-            //    file.OpenReadStream().Position = 0;
-            //}
-
-            //-------------------------------------------
-            //  Try to instantiate new image, if .NET will throw exception
-            //  we can assume that it's not a valid image
-            //-------------------------------------------
-            //try
-            //{
-            //    using (var imageReadStream = new MemoryStream())
-            //    {
-            //        file.CopyTo(imageReadStream);
-            //        using (var possibleImage = Image.FromStream(imageReadStream))
-            //        {
-            //        }
-            //
-            //        return true;
-            //    }
-            //}
-            //catch (Exception ex)
-            //{
-            //    LambdaLogger.Log("imageReadStream exception");
-            //    LambdaLogger.Log(ex.ToString());
-            //    return false;
-            //}
-            //finally
-            //{
-            //    file.OpenReadStream().Position = 0;
-            //}
+            }           
         }
     }
 }

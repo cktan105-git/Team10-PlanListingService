@@ -19,7 +19,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace PlantListing.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [Route("api/v1/[controller]")]
     [ApiController]
     public class PlantListingController : ControllerBase
@@ -47,11 +47,6 @@ namespace PlantListing.Controllers
                 .Skip(pageSize * pageIndex)
                 .Take(pageSize)
                 .ToListAsync();
-
-            //LambdaLogger.Log("User Information:");
-            //LambdaLogger.Log(JsonConvert.SerializeObject(this.User?.Claims));
-            //LambdaLogger.Log(JsonConvert.SerializeObject(this.User?.Identities));
-            //LambdaLogger.Log(JsonConvert.SerializeObject(this.User?.Identity));
 
             return new PaginatedItemsViewModel<PlantDetailsViewModel>(pageIndex, pageSize, totalItems, MapToViewModels(itemsOnPage));
         }
@@ -93,7 +88,7 @@ namespace PlantListing.Controllers
         [HttpPost]
         [Route("MyPlantListing")]
         [ProducesResponseType(typeof(PaginatedItemsViewModel<PlantDetailsViewModel>), (int)HttpStatusCode.OK)]
-        //[Authorize(Policy = "Producers")]
+        [Authorize(Policy = "Producers")]
         public async Task<ActionResult<PaginatedItemsViewModel<PlantDetailsViewModel>>> GetMyPlantListing([FromBody] GetMyPlantListingViewModel viewModel)
         {
             var root = (IQueryable<PlantDetails>)_context.PlantDetails;
@@ -197,7 +192,7 @@ namespace PlantListing.Controllers
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
-        //[Authorize(Policy = "Producers")]
+        [Authorize(Policy = "Producers")]
         public async Task<IActionResult> UpdatePlantDetails([FromForm] CreateUpdatePlantDetailsViewModel plantDetailsViewModel)
         {
             var plantDetails = await _context.PlantDetails.FindAsync(plantDetailsViewModel.PlantDetailsId);
@@ -214,15 +209,11 @@ namespace PlantListing.Controllers
             GetChangesFromViewModel(plantDetails, plantDetailsViewModel);
             if (!plantDetails.IsValid())
             {
-                //LambdaLogger.Log("Invalid plant details");
-                //LambdaLogger.Log(JsonConvert.SerializeObject(plantDetailsViewModel));
                 return BadRequest();
             }
 
             if ((plantDetailsViewModel.ImageFile != null && !plantDetailsViewModel.ImageFile.IsValidImage()))
             {
-                //LambdaLogger.Log("Invalid image");
-                //LambdaLogger.Log(JsonConvert.SerializeObject(plantDetailsViewModel));
                 return BadRequest(new { Message = $"Invalid image" });
             }
 
@@ -259,7 +250,7 @@ namespace PlantListing.Controllers
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.Created)]
         [ProducesResponseType(typeof(PlantDetailsViewModel), (int)HttpStatusCode.OK)]
-        //[Authorize(Policy = "Producers")]
+        [Authorize(Policy = "Producers")]
         public async Task<ActionResult<PlantDetailsViewModel>> CreatePlantDetails([FromForm] CreateUpdatePlantDetailsViewModel plantDetailsViewModel)
         {
             var plantDetails = new PlantDetails();
@@ -268,15 +259,11 @@ namespace PlantListing.Controllers
 
             if (!plantDetails.IsValid())
             {
-                //LambdaLogger.Log("Invalid plant details");
-                //LambdaLogger.Log(JsonConvert.SerializeObject(plantDetailsViewModel));
                 return BadRequest();
             }
 
             if ((plantDetailsViewModel.ImageFile != null && !plantDetailsViewModel.ImageFile.IsValidImage()))
             {
-                //LambdaLogger.Log("Invalid image");
-                //LambdaLogger.Log(JsonConvert.SerializeObject(plantDetailsViewModel));
                 return BadRequest(new { Message = $"Invalid image" });
             }
 
@@ -298,7 +285,7 @@ namespace PlantListing.Controllers
         [ProducesResponseType((int)HttpStatusCode.Unauthorized)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
-        //[Authorize(Policy = "Producers")]
+        [Authorize(Policy = "Producers")]
         public async Task<IActionResult> DeletePlantDetails([FromBody] DeletePlantDetailsViewModel viewModel)
         {
             var plantDetails = await _context.PlantDetails.FindAsync(viewModel.PlantDetailsId);
@@ -312,22 +299,16 @@ namespace PlantListing.Controllers
                 return Unauthorized();
             }
 
+            _context.PlantDetails.Remove(plantDetails);
+            await _context.SaveChangesAsync();
+
             if (!string.IsNullOrEmpty(plantDetails.ImageName))
             {
                _plantImageService.DeleteImageAsync(plantDetails.ImageName); // no need await for this
             }
 
-            _context.PlantDetails.Remove(plantDetails);
-            await _context.SaveChangesAsync();
-
             return NoContent();
         }
-
-        //private string GetUserId()
-        //{
-        //    // TODO: Get this information from sign in user
-        //    return _userService.GetUserId();
-        //}
 
         private bool PlantDetailsExists(long id)
         {

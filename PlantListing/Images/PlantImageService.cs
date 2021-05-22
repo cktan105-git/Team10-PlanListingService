@@ -37,7 +37,7 @@ namespace PlantListing.Images
             byte[] fileBytes = new Byte[file.Length];
             file.OpenReadStream().Read(fileBytes, 0, Int32.Parse(file.Length.ToString()));
 
-            // create unique file name for prevent the mess
+            // create unique file name
             var fileName = $"{Guid.NewGuid()}_{file.FileName}";
 
             return await UploadImageAsync(fileName, file.ContentType, fileBytes); ;
@@ -80,7 +80,7 @@ namespace PlantListing.Images
                     };
 
                     _logger.LogInformation(JsonConvert.SerializeObject(json)); ;
-                    //throw new PlantListingDomainException(message); // dont throw exception if fail to delete image from S3
+                    // no need to throw exception if fail to delete image from S3
 
                     return false;
                 }
@@ -88,17 +88,6 @@ namespace PlantListing.Images
             catch (AmazonS3Exception amazonS3Exception)
             {
                 _logger.LogError(amazonS3Exception.ToString());
-
-                // dont throw exception if fail to delete image from S3
-                //if (amazonS3Exception.ErrorCode != null && (amazonS3Exception.ErrorCode.Equals("InvalidAccessKeyId") || amazonS3Exception.ErrorCode.Equals("InvalidSecurity")))
-                //{
-                //    throw new Exception("Check the provided AWS Credentials.");
-                //}
-                //else
-                //{
-                //    throw new Exception("Error occurred: " + amazonS3Exception.Message);
-                //}
-
                 return false;
             }
         }
@@ -116,8 +105,7 @@ namespace PlantListing.Images
                         BucketName = _options.Value.ImageS3BucketName,
                         Key = fileName,
                         InputStream = stream,
-                        ContentType = contentType,
-                        //CannedACL = S3CannedACL.PublicRead // enable public read access
+                        ContentType = contentType
                     };
 
                     response = await _s3Client.PutObjectAsync(request);

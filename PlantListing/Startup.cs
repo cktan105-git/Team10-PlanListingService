@@ -39,10 +39,7 @@ namespace PlantListing
                 .AddCognitoIdentity() // Adds Amazon Cognito as Identity Provider
                 .AddAWSService<IAmazonS3>() // Adds Amazon S3
                 .Configure<AWSSettings>(Configuration.GetSection(AWSSettings.AWS)) // Read option from "AWS" environment variable
-                .AddTransient<IPlantImageService, PlantImageService>()
-                .Configure<ProducerServiceSettings>(Configuration.GetSection(ProducerServiceSettings.ProducerService)); // Read option from "AWS" environment variable
-
-            //services.AddHttpClient<ProducerServiceClient>();
+                .AddTransient<IPlantImageService, PlantImageService>();
 
             services.AddAuthorization(options =>
             {

@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace PlantListing.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [Route("api/v1/[controller]")]
     [ApiController]
     public class PlantCategoriesController : ControllerBase
