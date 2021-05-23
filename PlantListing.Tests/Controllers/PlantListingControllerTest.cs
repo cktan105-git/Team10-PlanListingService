@@ -302,7 +302,7 @@ namespace PlantListing.Test
             var plantDetailsContext = new PlantListingContext(_dbOptions);
 
             var userId = "cktan";
-            var NotFoundUpdatePlantDetailsViewModel = new CreateUpdatePlantDetailsViewModel()
+            var NotFoundUpdatePlantDetailsViewModel = new CreateEditPlantDetailsViewModel()
             {
                 PlantDetailsId = 99,
                 Name = "Bean sprouts",
@@ -331,7 +331,7 @@ namespace PlantListing.Test
             //Arrange
             var plantDetailsContext = new PlantListingContext(_dbOptions);
 
-            var updatePlantDetailsViewModel = new CreateUpdatePlantDetailsViewModel()
+            var updatePlantDetailsViewModel = new CreateEditPlantDetailsViewModel()
             {
                 PlantDetailsId = 5,
                 Name = "Fragrant Garlic",
@@ -371,7 +371,7 @@ namespace PlantListing.Test
             var plantDetailsContext = new PlantListingContext(_dbOptions);
 
             var userId = "wpkeoh";
-            var invalidUpdatePlantDetailsViewModel = new CreateUpdatePlantDetailsViewModel()
+            var invalidUpdatePlantDetailsViewModel = new CreateEditPlantDetailsViewModel()
             {
                 PlantDetailsId = 5,
                 Name = name,
@@ -399,7 +399,7 @@ namespace PlantListing.Test
             var plantDetailsContext = new PlantListingContext(_dbOptions);
 
             var userId = "wpkeoh";
-            var updatePlantDetailsViewModel = new CreateUpdatePlantDetailsViewModel()
+            var updatePlantDetailsViewModel = new CreateEditPlantDetailsViewModel()
             {
                 PlantDetailsId = 5,
                 Name = "Fragrant Garlic",
@@ -441,7 +441,7 @@ namespace PlantListing.Test
             //Arrange
             var plantDetailsContext = new PlantListingContext(_dbOptions);
 
-            var invalidCreatePlantDetailsViewModel = new CreateUpdatePlantDetailsViewModel()
+            var invalidCreatePlantDetailsViewModel = new CreateEditPlantDetailsViewModel()
             {
                 PlantDetailsId = 0,
                 Name = name,
@@ -469,7 +469,7 @@ namespace PlantListing.Test
             var plantDetailsContext = new PlantListingContext(_dbOptions);
 
             var userId = "cktan";
-            var validCreatePlantDetailsViewModel = new CreateUpdatePlantDetailsViewModel()
+            var validCreatePlantDetailsViewModel = new CreateEditPlantDetailsViewModel()
             {
                 Name = "Bean sprouts",
                 Description = "Organic bean sprouts",

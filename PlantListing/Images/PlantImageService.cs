@@ -45,12 +45,14 @@ namespace PlantListing.Images
 
         public async Task<PlantImageViewModel> ReplaceImageAsync(string oldFileName, IFormFile file)
         {
-            if(!string.IsNullOrEmpty(oldFileName))
+            var response = await UploadImageAsync(file);
+
+            if (!string.IsNullOrEmpty(oldFileName)) // delete old image after new image upload successfully
             {
                 DeleteImageAsync(oldFileName); // no need await for this
             }
 
-            return await UploadImageAsync(file);
+            return response;
         }
 
         public async Task<bool> DeleteImageAsync(string fileName)

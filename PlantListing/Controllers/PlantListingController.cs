@@ -193,7 +193,7 @@ namespace PlantListing.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [Authorize(Policy = "Producers")]
-        public async Task<IActionResult> UpdatePlantDetails([FromForm] CreateUpdatePlantDetailsViewModel plantDetailsViewModel)
+        public async Task<IActionResult> UpdatePlantDetails([FromForm] CreateEditPlantDetailsViewModel plantDetailsViewModel)
         {
             var plantDetails = await _context.PlantDetails.FindAsync(plantDetailsViewModel.PlantDetailsId);
             if (plantDetails == null)
@@ -251,7 +251,7 @@ namespace PlantListing.Controllers
         [ProducesResponseType((int)HttpStatusCode.Created)]
         [ProducesResponseType(typeof(PlantDetailsViewModel), (int)HttpStatusCode.OK)]
         [Authorize(Policy = "Producers")]
-        public async Task<ActionResult<PlantDetailsViewModel>> CreatePlantDetails([FromForm] CreateUpdatePlantDetailsViewModel plantDetailsViewModel)
+        public async Task<ActionResult<PlantDetailsViewModel>> CreatePlantDetails([FromForm] CreateEditPlantDetailsViewModel plantDetailsViewModel)
         {
             var plantDetails = new PlantDetails();
             GetChangesFromViewModel(plantDetails, plantDetailsViewModel);
@@ -338,7 +338,7 @@ namespace PlantListing.Controllers
             return plantDetails.Select(d => MapToViewModel(d)).ToList();
         }
 
-        private void GetChangesFromViewModel(PlantDetails plantDetails, CreateUpdatePlantDetailsViewModel viewModel)
+        private void GetChangesFromViewModel(PlantDetails plantDetails, CreateEditPlantDetailsViewModel viewModel)
         {
             var category = _context.PlantCategories.Where(c => EF.Functions.Like(c.Category, viewModel.Category ?? string.Empty)).FirstOrDefault();
             var weightUnit = _context.WeightUnits.Where(c => EF.Functions.Like(c.Unit, viewModel.Unit ?? string.Empty)).FirstOrDefault();

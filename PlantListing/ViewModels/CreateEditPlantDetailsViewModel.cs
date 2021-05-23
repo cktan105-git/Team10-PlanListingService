@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace PlantListing.ViewModels
 {
-    public class CreateUpdatePlantDetailsViewModel
+    public class CreateEditPlantDetailsViewModel
     {
         public long PlantDetailsId { get; set; }
         public string Name { get; set; }
